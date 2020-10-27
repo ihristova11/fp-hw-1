@@ -39,4 +39,5 @@
   (draw-position-half n append-half position (lambda (i) i) (lambda (i)(+ 3 (* 4 (- (- n i) 1)))) dr dl)
   (draw-position-half n append-half position (lambda (i)(- (- n i) 1)) (lambda (i)(+ 3 (* 4 i))) ur ul))
 
-(squares 3)
+; an example
+; (squares 3)
