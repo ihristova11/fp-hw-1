@@ -22,14 +22,14 @@
 (define (knapsack c n w p)
   (define (sum_elements set i result) ; refactor
     (if (< i n)
-        (sum_elements (++ i) (+ result (p i)))
+        (sum_elements (++ i) (+ result (lambda () ((if (set-contains? set (expt 2 (++ i))) (p i) 0)))))
         result
     )
   )
 
   (define (sum_weight set i result) ; refactor
     (if (< i n)
-        (sum_elements (++ i) (+ result (w i)))
+        (sum_elements (++ i) (+ result (lambda () ((if (set-contains? set (expt 2 (++ i))) (w i) 0)))))
         result
     )
   )
