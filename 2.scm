@@ -9,8 +9,6 @@
 (define (set-remove set elem)
   (if (set-contains? elem) (- set (expt 2 elem))))
 
-;(define (set-size set) )
-
 (define (set-intersect s1 s2) ; may refactor
   (define (loop set1 set2 result index)
     (if (or (>= 0 set1) (>= 0 set2))
@@ -47,23 +45,18 @@
   (loop set 0)
 )
 
-(define (set-difference set1 set2)
-  (define (loop s1 s2 result)
+(define (set-difference set1 set2) ; refactor
+  (define (loop s1 s2 result index)
     (if (and (>= 0 s1) (>= 0 s2))
         result
         (if (and (= 1 (modulo s1 2)) (= 0 (modulo s2 2)))
-            (loop (quotient s1 2) (quotient s2 2) (+ 1 result))
-            (loop (quotient s1 2) (quotient s2 2) result)
+            (loop (quotient s1 2) (quotient s2 2) (+ result (expt 2 index)) (+ 1 index))
+            (loop (quotient s1 2) (quotient s2 2) result (+ 1 index))
         )
     )
   )
-  (loop set1 set2 0)
+  (loop set1 set2 0 0)
 )
-
-; set-size
-; set-intersect
-; set-union
-; set-difference
 
 (define (w i) (+ 1 i))
 (define (p i) (* 2 i))
@@ -103,13 +96,5 @@
   (loop 0 0 0)
 )
 
-
-(set-intersect 13 21)
-
-(set-union 7 13)
-
-(set-size 0)
-
-(set-difference 7 13)
 
 ;(knapsack 24 5 w p)
