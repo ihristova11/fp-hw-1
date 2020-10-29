@@ -20,30 +20,35 @@
 (define (++ i) (+ 1 i))
 
 (define (knapsack c n w p)
-  (define (sum_elements set i result) ; refactor
-    (if (< i n)
-        (sum_elements (++ i) (+ result (lambda () ((if (set-contains? set (expt 2 (++ i))) (p i) 0)))))
+  (define (sum_elements set index result) ; refactor
+    (define (get_value index) (if (set-contains? set (expt 2 (++ index))) (p index) 0))
+    (if (< index n)
+        (sum_elements set (++ index) (+ result  (get_value index)))
         result
     )
   )
 
-  (define (sum_weight set i result) ; refactor
-    (if (< i n)
-        (sum_elements (++ i) (+ result (lambda () ((if (set-contains? set (expt 2 (++ i))) (w i) 0)))))
+  (define (sum_weight set index result) ; refactor
+    (define (get_value index) (if (set-contains? set (expt 2 (++ index))) (w index) 0))
+    (if (< index n)
+        (sum_weight set (++ index) (+ result (get_value index)))
         result
     )
   )
-  
-  (define (loop i max_price max_price_set)
-    (if (< current_set (+ 1 (expt 2 n))) ; i < 2^n + 1 всички възможности
-        (loop (++ current_set)
-              (lambda (max_price) ; update max_price
-                ((if (and (<= (sum_weight current_set 0 0) c) (> (sum_elements current_set 0 0) max_price))
+
+  (define (find_max_price max_price current_set)
+     (if (and (<= (sum_weight current_set 0 0) c) (> (sum_elements current_set 0 0) max_price))
                      (sum_elements current_set 0 0)
-                     max_price)))
-               (lambda (max_price current_price) ; update max_price
-                ((if (and (<= (sum_weight current_set 0 0) c) (> (sum_elements current_set 0 0) max_price)) current_set)))
-        )
+                     max_price)
+  )
+
+  (define (find_max_price_set max_price current_set)
+    (if (and (<= (sum_weight current_set 0 0) c) (> (sum_elements current_set 0 0) max_price)) current_set)
+  )
+  
+  (define (loop current_set max_price max_price_set)
+    (if (< current_set (+ 1 (expt 2 n))) ; i < 2^n + 1 всички възможности
+        (loop (++ current_set) (find_max_price max_price current_set) (find_max_price_set max_price current_set))
         max_price_set
     )
   )
@@ -51,4 +56,5 @@
   (loop 0 0 0)
 )
 
-; (knapsack 10 3 w p)
+
+(knapsack 10 3 w p)
