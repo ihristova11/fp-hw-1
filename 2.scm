@@ -58,6 +58,8 @@
   (loop set1 set2 0 0)
 )
 
+
+
 (define (w i) (+ 1 i))
 (define (p i) (* 2 i))
 
@@ -66,7 +68,7 @@
     (define (loop s result ind)
       (if (>= 0 s)
           result
-          (loop (quoitent s 2) (+ result (* (modulo s 2) (p ind))) (+ 1 ind))
+          (loop (quotient s 2) (+ result (* (modulo s 2) (p ind))) (+ 1 ind))
       )
     )
     (loop set 0 0)
@@ -76,7 +78,7 @@
     (define (loop s result ind)
        (if (>= 0 s)
           result
-          (loop (quoitent s 2) (+ result (* (modulo s 2) (w ind))) (+ 1 ind))
+          (loop (quotient s 2) (+ result (* (modulo s 2) (w ind))) (+ 1 ind))
       )
     )
     (loop set 0 0)
@@ -97,8 +99,14 @@
   )
  
   (define (loop current_set max_price max_set)
-    (if (< current_set (- 1 (expt 2 n))) ; i < 2^n - 1 всички възможности
-        (loop (+ 1 current_set) (calc_max_price max_price current_set c) (find_max_price_set current_set max_set c))
+    (display current_set)
+    (display ": ")
+    (display max_price)
+    (display ": ")
+    (display max_set)
+    (display "\n")
+    (if (< current_set (- (expt 2 n) 1)) ; i < 2^n - 1 всички възможности
+        (loop (+ 1 current_set) (calc_max_price max_price current_set c) (max_price_set current_set max_set c))
         max_set
     )
   )
@@ -106,4 +114,4 @@
   (loop 0 0 0)
 )
 
-(knapsack 24 5 w p)
+(knapsack 8 3 w p)
