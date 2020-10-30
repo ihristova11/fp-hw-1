@@ -108,4 +108,7 @@
   (loop 0 (w 0) (p 0))
 )
 
-(knapsack 9 4 w p)
+; (knapsack 9 4 w p) -> 14
+; (knapsack 4 4 w p) -> 8
+
+; remove w p, add lambdas 
