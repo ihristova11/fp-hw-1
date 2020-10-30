@@ -62,39 +62,48 @@
 (define (p i) (* 2 i))
 
 (define (knapsack c n w p)
-  (define (sum_elements set index result) ; refactor
-    (define (get_value index) (if (set-contains? set (expt 2 (+ 1 index))) (p index) 0))
-    (if (< index n)
-        (sum_elements set (+ 1 index) (+ result  (get_value index)))
-        result
+  (define (price set) ; refactor
+    (define (loop s result ind)
+      (if (>= 0 s)
+          result
+          (loop (quoitent s 2) (+ result (* (modulo s 2) (p ind))) (+ 1 ind))
+      )
+    )
+    (loop set 0 0)
+  )
+
+  (define (weight set) ; refactor
+    (define (loop s result ind)
+       (if (>= 0 s)
+          result
+          (loop (quoitent s 2) (+ result (* (modulo s 2) (w ind))) (+ 1 ind))
+      )
+    )
+    (loop set 0 0)
+  )
+
+  (define (calc_max_price max_price curr_set capacity)
+    (if (and (> (price curr_set) max_price) (< (weight curr_set) capacity))
+        (price curr_set)
+        max_price
     )
   )
 
-  (define (sum_weight set index result) ; refactor
-    (define (get_value index) (if (set-contains? set (expt 2 (+ 1 index))) (w index) 0))
-    (if (< index n)
-        (sum_weight set (+ 1 index) (+ result (get_value index)))
-        result
+  (define (max_price_set curr_set max_set capacity)
+    (if (and (> (price curr_set) (price max_set)) (< (weight curr_set) capacity))
+        curr_set
+        max_set
     )
   )
-
-  (define (find_max_price max_price current_set)
-     (if (and (<= (sum_weight current_set 0 0) c) (> (sum_elements current_set 0 0) max_price))
-                     (sum_elements current_set 0 0)
-                     max_price))
-
-  (define (find_max_price_set max_price current_set)
-    (if (and (<= (sum_weight current_set 0 0) c) (> (sum_elements current_set 0 0) max_price)) current_set))
-  
-  (define (loop current_set max_price max_price_set)
-    (if (< current_set (- 1 (expt 2 n))) ; i < 2^n + 1 всички възможности
-        (loop (+ 1 current_set) (find_max_price max_price current_set) (find_max_price_set max_price current_set))
-        max_price_set
+ 
+  (define (loop current_set max_price max_set)
+    (if (< current_set (- 1 (expt 2 n))) ; i < 2^n - 1 всички възможности
+        (loop (+ 1 current_set) (calc_max_price max_price current_set c) (find_max_price_set current_set max_set c))
+        max_set
     )
   )
 
   (loop 0 0 0)
 )
 
-
-;(knapsack 24 5 w p)
+(knapsack 24 5 w p)
