@@ -85,33 +85,27 @@
   )
 
   (define (calc_max_price max_price curr_set capacity)
-    (if (and (> (price curr_set) max_price) (< (weight curr_set) capacity))
+    (if (and (> (price curr_set) max_price) (<= (weight curr_set) capacity))
         (price curr_set)
         max_price
     )
   )
 
   (define (max_price_set curr_set max_set capacity)
-    (if (and (> (price curr_set) (price max_set)) (< (weight curr_set) capacity))
+    (if (and (> (price curr_set) (price max_set)) (<= (weight curr_set) capacity))
         curr_set
         max_set
     )
   )
  
   (define (loop current_set max_price max_set)
-    (display current_set)
-    (display ": ")
-    (display max_price)
-    (display ": ")
-    (display max_set)
-    (display "\n")
-    (if (< current_set (- (expt 2 n) 1)) ; i < 2^n - 1 всички възможности
+    (if (< current_set (expt 2 n)) ; i < 2^n всички възможности
         (loop (+ 1 current_set) (calc_max_price max_price current_set c) (max_price_set current_set max_set c))
-        max_set
+        (max_price_set current_set max_set c)
     )
   )
 
-  (loop 0 0 0)
+  (loop 0 (w 0) (p 0))
 )
 
-(knapsack 8 3 w p)
+(knapsack 9 4 w p)
