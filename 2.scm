@@ -9,106 +9,47 @@
 (define (set-remove set elem)
   (if (set-contains? elem) (- set (expt 2 elem))))
 
-(define (set-intersect s1 s2) ; may refactor
-  (define (loop set1 set2 result index)
-    (if (or (>= 0 set1) (>= 0 set2))
-        result
-        (if (and (= 1 (modulo set2 2)) (= 1 (modulo set1 2)))
-            (loop (quotient set1 2) (quotient set2 2) (+ result (expt 2 index)) (+ 1 index))
-            (loop (quotient set1 2) (quotient set2 2) result (+ 1 index))
-        )
-    )
-  )
+(define (set-loop s1 s2 result ind cond1 cond2 next)
+  (cond ((cond1 s1 s2) result)
+        ((and (not (cond1 s1 s2)) (cond2 s1 s2)) (set-loop (quotient s1 2) (quotient s2 2) (+ result (expt 2 ind)) (next ind) cond1 cond2 next))
+        (else (set-loop (quotient s1 2) (quotient s2 2) result (next ind) cond1 cond2 next))))
 
-  (loop s1 s2 0 0)
+(define (set-intersect s1 s2)
+   (set-loop s1 s2 0 0 (lambda (s1 s2) (or (>= 0 s1) (>= 0 s2))) (lambda (s1 s2) (and (= 1 (modulo s2 2)) (= 1 (modulo s1 2)))) (lambda (i) (+ 1 i)))
 )
 
-(define (set-union s1 s2) ; may refactor
-  (define (loop set1 set2 result index)
-    (if (and (>= 0 set1) (>= 0 set2))
-        result
-        (if (or (= 1 (modulo set2 2)) (= 1 (modulo set1 2)))
-            (loop (quotient set1 2) (quotient set2 2) (+ result (expt 2 index)) (+ 1 index))
-            (loop (quotient set1 2) (quotient set2 2) result (+ 1 index))
-        )
-    )
-  )
+(define (set-union s1 s2)
+ (set-loop s1 s2 0 0 (lambda (s1 s2) (and (>= 0 s1) (>= 0 s2))) (lambda (s1 s2) (or (= 1 (modulo s2 2)) (= 1 (modulo s1 2)))) (lambda (i) (+ 1 i))))
 
-  (loop s1 s2 0 0)
-)
+(define (set-difference s1 s2)
+  (set-loop s1 s2 0 0 (lambda (s1 s2) (and (>= 0 s1) (>= 0 s2))) (lambda (s1 s2) (and (= 1 (modulo s1 2)) (= 0 (modulo s2 2)))) (lambda (i) (+ 1 i))))
 
 (define (set-size set)
   (define (loop s counter)
-    (if (>= 0 s)
-        counter
-        (loop (quotient s 2) (+ counter (modulo s 2)))))
-  (loop set 0)
-)
-
-(define (set-difference set1 set2) ; refactor
-  (define (loop s1 s2 result index)
-    (if (and (>= 0 s1) (>= 0 s2))
-        result
-        (if (and (= 1 (modulo s1 2)) (= 0 (modulo s2 2)))
-            (loop (quotient s1 2) (quotient s2 2) (+ result (expt 2 index)) (+ 1 index))
-            (loop (quotient s1 2) (quotient s2 2) result (+ 1 index))
-        )
-    )
-  )
-  (loop set1 set2 0 0)
-)
-
-
-
-(define (w i) (+ 1 i))
-(define (p i) (* 2 i))
+    (if (>= 0 s) counter (loop (quotient s 2) (+ counter (modulo s 2)))))
+  (loop set 0))
 
 (define (knapsack c n w p)
-  (define (price set) ; refactor
-    (define (loop s result ind)
-      (if (>= 0 s)
-          result
-          (loop (quotient s 2) (+ result (* (modulo s 2) (p ind))) (+ 1 ind))
-      )
-    )
-    (loop set 0 0)
-  )
+  (define (calc op s result ind)
+    (if (>= 0 s) result (calc op (quotient s 2) (+ result (* (modulo s 2) (op ind))) (+ 1 ind))))
+  
+  (define (price set) (calc p set 0 0))
 
-  (define (weight set) ; refactor
-    (define (loop s result ind)
-       (if (>= 0 s)
-          result
-          (loop (quotient s 2) (+ result (* (modulo s 2) (w ind))) (+ 1 ind))
-      )
-    )
-    (loop set 0 0)
-  )
+  (define (weight set) (calc w set 0 0))
 
   (define (calc_max_price max_price curr_set capacity)
-    (if (and (> (price curr_set) max_price) (<= (weight curr_set) capacity))
-        (price curr_set)
-        max_price
-    )
-  )
+    (if (and (> (price curr_set) max_price) (<= (weight curr_set) capacity)) (price curr_set) max_price))
 
   (define (max_price_set curr_set max_set capacity)
-    (if (and (> (price curr_set) (price max_set)) (<= (weight curr_set) capacity))
-        curr_set
-        max_set
-    )
-  )
+    (if (and (> (price curr_set) (price max_set)) (<= (weight curr_set) capacity)) curr_set max_set))
  
   (define (loop current_set max_price max_set)
-    (if (< current_set (expt 2 n)) ; i < 2^n всички възможности
+    (if (< current_set (expt 2 n))
         (loop (+ 1 current_set) (calc_max_price max_price current_set c) (max_price_set current_set max_set c))
-        (max_price_set current_set max_set c)
-    )
-  )
+        (max_price_set current_set max_set c)))
 
   (loop 0 (w 0) (p 0))
 )
 
-; (knapsack 9 4 w p) -> 14
-; (knapsack 4 4 w p) -> 8
-
-; remove w p, add lambdas 
+; an example
+; (knapsack 9 4 (lambda (i) (+ 1 i)) (lambda (i) (* 2 i))) ;-> 14
