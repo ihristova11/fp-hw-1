@@ -35,6 +35,14 @@
   (if (not (expr-valid? str)) #f (loop str ""))
 )
 
+(define (loop str res)
+  (display str)
+  (cond ((= 0 (string-length str)) res)
+        ((string=? "" (>> str)) (loop (tail str) res))
+        (else (loop (substring str (string-length (>> str)) (string-length str)) (string-append res (>> str) ";")))      
+  )
+)
+
 ;(define (string-trim expr)
   
  ; (define (loop expr result lastnumber)
@@ -46,7 +54,6 @@
  ; )
 ;)
 
-(>> "   in")
-(>> "in the wood")
+(loop "in the wood" "")
 
 ;(string-trim "  in the end  ")(string-trim "  in the end  ")          =>  "in the end"
