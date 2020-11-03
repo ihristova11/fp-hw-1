@@ -45,7 +45,16 @@
 
 
 (define (expr-valid? expr)
- #t
+ (define (loop str numcount opcount)
+   (cond ((string=? "" (>> str)) #t)
+         ((< numcount opcount) #f)
+         ((< (+ 1 opcount) numcount) #f)
+         ((operator? (>> str)) (loop (tail str (>>len str)) numcount (+ 1 opcount)))
+         ((positive-number? (>> str)) (loop (tail str (>>len str)) (+ 1 numcount) opcount))
+         (else #f)
+   )
+ )
+  (loop expr 0 0)
 )
 
 (define (pop str) (tail (reverse-string str) (>>len (reverse-string str))))
@@ -82,24 +91,18 @@
 
 
 
-(expr-rp "10*20 + 30")
+(expr-rp "10+  20 * 30")
 
 ;(expr-valid? "10   * 20")
-;(expr-valid? "10 20 + 5")
+;(expr-valid? "10 20 + 5+")
 ;(expr-valid? "++++ 5")
 ;(expr-valid? "+++")
 ;(expr-valid? "")
 ;(expr-valid? "-5")
 ;(expr-valid? "-5 + 2 * 2 2")
 ;(expr-valid? "3")
+;(expr-valid? "  10 + 5       * 2")
+;(expr-valid? "10+5*2")
+;(expr-valid? "    10   ")
+;(expr-valid? "   ")
 
-  ;(expr-valid? "  10 + 5       * 2")
-
-  ;(expr-valid? "10+5*2")
-
-  ;(expr-valid? "    10   ")
-
-  ;(expr-valid? "       10  90  * +20")
-
-  
-  ;(>> "      80     90 - ")
