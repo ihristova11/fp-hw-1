@@ -7,20 +7,6 @@
 (define (tail str) (if (= 0 (string-length str)) str (substring str 1 (string-length str))))
 (define (head str) (if (= 0 (string-length str)) str (substring str 0 1)))
 
-(define (>> str)
-  (define (loop str result)
-    ;(display (string-append "head:" (head str) "\n"))
-    ;(display (string-append "tail:" (tail str) "\n"))
-    ;(display (string-append "str:" str "\n"))
-    ;(display (string-append "result: " result "\n")) 
-    (if (or (= 0 (string-length str)) (string=? " " (head str)))
-        result
-        (loop (tail str) (string-append result (head str)))
-    )
-  )
-  (loop str "")
-)
-
 (define (expr-valid? expr)
   (define (loop str res)
     (display (string-append "str:" str "\n"))
@@ -54,11 +40,12 @@
 
 
 
-(define (read-token str)
+(define (>> str)
   (define (loop str res)
     ;(display (string-append "str:" str ";res:" res ";\n"))
     (cond ((string=? "" str) res)
           ((different-types? (head str) res) res)
+          ((and (string=? " " (head str)) (or (positive-number? res) (operator? res))) res)    
           ((string=? " " (head str)) (loop (tail str) res))         
           (else (loop (tail str) (string-append res (head str))))
     )
@@ -70,17 +57,20 @@
 
   (define (loop str res)
     (display (string-append "str:" str "\n"))
-    (display (string-append (read-token str) "\n"))
-    ;(display  (string-length (read-token str)))
+    (display (string-append (>> str) "\n"))
+    ;(display  (string-length (>> str)))
     (cond ((string=? "" str) res)
-          (else (loop (substring str (string-length (read-token str)) (string-length str))
-              (string-append res ";" (read-token str))
+          ((string=? (head str) " ") (loop (tail str) res))
+          (else (loop (substring str (string-length (>> str)) (string-length str))
+              (string-append res ";" (>> str))
               ))
         )
   )
     
-  (loop "10+20" "")
+  (loop " 10 90  * +20" "")
+  ;(>> "80 90 - ")
 
+  ;(substring? "10" " 10    +20")
 
 ;(read-token " 20")
 ;(different-types? (head "+ 20") "")
