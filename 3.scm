@@ -58,39 +58,67 @@
   (loop expr 0 0)
 )
 
-(define (pop str) (tail (reverse-string str) (>>len (reverse-string str))))
+(define (pop str) (reverse-string (tail (reverse-string str) (>>len (reverse-string str)))))
 (define (top str) (reverse-string (>> (reverse-string str))))
 (define (push str el delim) (string-append str delim el))
 
-(define (expr-rp expr)
+(define (loop str out op delim_out delim_op delim_form)
+    
   (define (form-expr out op)
     ;(display (string-append "out:" out "| op:" op "| " ">>op:" (>> op) "|\n"))
     (if (string=? (>> op) "")
         (tail out 1) ; remove empty space at the beggining
-        (form-expr (push out (top op) "") (pop op))
+        (form-expr (push out (top op) delim_form) (pop op))
     )
   )
-  
-  (define (loop str out op)
     ;(display (string-append "str:" str "|out:" out "|op:" op "|\n" "|>>str:" (>> str) "|\n"))
     (cond ((string=? "" (>> str)) (form-expr out op))
-          ((positive-number? (>> str)) (loop  (tail str (>>len str)) (push out (>> str) ",") op))
-          ((and (operator? (>> str)) (string=? "" op)) (loop (tail str (>>len str)) out (push op (>> str) " "))) ; empty op stack, just add operator
-          ((and (operator? (>> str)) (< (precedence (top op)) (precedence (>> str)))) (loop (tail str (>>len str)) out (push op (>> str) " "))) ; operator in stack has < priority than the currently read, push the new operator as well (TODO: CHECK EQUAL PRIORITY | LEFT)
+          ((positive-number? (>> str)) (loop  (tail str (>>len str)) (push out (>> str) delim_out) op delim_out delim_op delim_form))
+          ((and (operator? (>> str)) (string=? "" op)) (loop (tail str (>>len str)) out (push op (>> str) delim_op) delim_out delim_op delim_form)) ; empty op stack, just add operator
+          ((and (operator? (>> str)) (< (precedence (top op)) (precedence (>> str)))) (loop (tail str (>>len str)) out (push op (>> str) delim_op) delim_out delim_op delim_form)) ; operator in stack has < priority than the currently read, push the new operator as well (TODO: CHECK EQUAL PRIORITY | LEFT)
           ((and (operator? (>> str)) (>= (precedence (top op)) (precedence (>> str))))
            ((lambda ()
               (if (>= (precedence (top (pop op))) (precedence (>> str)))
-                  (loop (tail str (>>len str)) (push (push out (top op) "") (top (pop op)) "") (push (pop (pop op)) (>> str) " "))
-                  (loop (tail str (>>len str)) (push out (top op)) (push (pop op) (>> str) " ") "")
+                  (loop (tail str (>>len str)) (push (push out (top op) "") (top (pop op)) "") (push (pop (pop op)) (>> str) delim_op) delim_out delim_op delim_form)
+                  (loop (tail str (>>len str)) (push out (top op)) (push (pop op) (>> str) delim_op) "" delim_out delim_op delim_form)
               )))) ; high priority-> pop and then push the new op
     )
   )
+
+
+  
+(define (expr-rp expr)
   (if (expr-valid? expr)
-      (loop expr "" "")
+      (loop expr "" "" "," " " "")
       #f
   )
 )
 
+;(loop "10   * 20+5" "" "" " " " ")
+
+(define (eval-op operation operand1 operand2)
+  (cond ((string=? "*" operation) (* operand1 operand2))
+        ((string=? "+" operation) (+ operand1 operand2))
+        ((string=? "-" operation) (- operand1 operand2))
+        ((string=? "/" operation) (/ operand1 operand2)) ; or quotation
+        ((string=? "^" operation) (expt operand1 operand2))
+  )
+)
+
+(define (expr-eval expr)
+  (define (func str out sum)
+    ;(display (string-append "str:" str "|out:" out "|sum:")) (display sum) (display "|\n")
+    (cond ((and (string=? "" out) (string=? "" (>> str))) 0)
+          ((string=? "" (>> str)) (string->number (>> out)))
+          ((positive-number? (>> str)) (func (tail str (>>len str)) (push out (>> str) " ") sum))
+          ((operator? (>> str)) (func (tail str (>>len str)) (push (pop (pop out)) (number->string (+ sum (eval-op (>> str) (string->number (top (pop out))) (string->number (top out))))) " ") sum ))
+    )
+  )
+  (if (expr-valid? expr)
+      (func (loop expr "" "" " " " " " ") "" 0)
+      #f
+  )
+)
 
 
 ;(expr-rp "")
@@ -99,16 +127,17 @@
 
 ;(expr-valid? "   10    ")
 
-;(expr-valid? "10   * 20")
-;(expr-valid? "10 20 + 5+")
+(expr-eval "10   * 20")
+(expr-eval "10* 20 + 5")
 ;(expr-valid? "++++ 5")
 ;(expr-valid? "+++")
 ;(expr-valid? "")
 ;(expr-valid? "-5")
 ;(expr-valid? "-5 + 2 * 2 2")
-;(expr-valid? "3")
-;(expr-valid? "  10 + 5       * 2")
-;(expr-valid? "10+5*2")
-;(expr-valid? "    10   ")
-;(expr-valid? "   ")
+(expr-eval "3")
+(expr-eval "10 + 5* 2")
+(expr-eval " 10*10+   10 * 5^ 2")
+(expr-eval "10/5*2")
+(expr-eval "    10   ")
+(expr-eval "   ")
 
