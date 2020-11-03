@@ -4,27 +4,14 @@
 
 (define (different-types? str1 str2) (or (and (positive-number? str1) (operator? str2)) (and (positive-number? str2) (operator? str1))))
 
-(define (tail str) (if (= 0 (string-length str)) str (substring str 1 (string-length str))))
+(define (tail str ind) (if (= 0 (string-length str)) str (substring str ind (string-length str))))
 (define (head str) (if (= 0 (string-length str)) str (substring str 0 1)))
 
 (define (reverse-string str)
   (define (loop str res)
-    (if (string=? "" str) res (loop (tail str) (string-append (head str) res)))
+    (if (string=? "" str) res (loop (tail str 1) (string-append (head str) res)))
   )
   (loop str "")
-)
-
-(define (expr-valid? expr)
-  (define (loop str res)
-    (display (string-append "str:" str "\n"))
-    (display (string-append ">> str:" (>> str) "\n"))
-    (cond ((string=? "" str) #t)
-          ((and (not (string=? "" (>> str))) (not (different-types? res (>> str)))) #f)
-          ((string=? "" (>> str)) (loop (tail str) res))
-          (else (loop (substring str (string-length (>> str)) (string-length str)) (>> str)))     
-    )
-   )
-  (loop expr "")
 )
   
 (define (precedence operator)
@@ -37,56 +24,65 @@
     (cond ((string=? "" str) res)
           ((different-types? (head str) res) res)
           ((and (string=? " " (head str)) (or (positive-number? res) (operator? res))) res)
-          ((string=? " " (head str)) (loop (tail str) res))
-          (else (loop (tail str) (string-append res (head str))))
+          ((string=? " " (head str)) (loop (tail str 1) res))
+          (else (loop (tail str 1) (string-append res (head str))))
     )
   )
   (loop str "")
 )
-(define (substring-len expr)
-   (define (loop str res len)
+
+(define (>>len str)
+  (define (loop str res len)
     (cond ((string=? "" str) len)
           ((different-types? (head str) res) len)
-          ((and (string=? " " (head str)) (or (positive-number? res) (operator? res))) len)    
-          ((string=? " " (head str)) (loop (tail str) res (+ 1 len)))         
-          (else (loop (tail str) (string-append res (head str)) (+ 1 len)))
+          ((and (string=? " " (head str)) (or (positive-number? res) (operator? res))) len)
+          ((string=? " " (head str)) (loop (tail str 1) res (+ 1 len)))
+          (else (loop (tail str 1) (string-append res (head str)) (+ 1 len)))
     )
   )
-  (loop expr "" 0)
+  (loop str "" 0)
 )
 
 
 (define (expr-valid? expr)
-  (define (loop str res)
-    (display (string-append "str:" str ";"))
-    (display (string-append " >> str:" (>> str) ";" " res:" res ";\n"))
-    ;(display  (string-length (>> str)))
-    (cond ((string=? "" str) #t)
-          ((string=? (head str) " ") (loop (tail str) res))
-          ((and (not (string=? "" res)) (not (different-types? res (>> str))) #f))
-          ((string=? (head str) " ") (loop (tail str) res))
-          (else (loop (substring str (string-length (>> str)) (string-length str)) (>> str)))
-        )
-  )
+ #t
+)
 
-  (cond ((operator? (>> expr)) #f)
-        (operator? (>> (reverse-string expr)) #f)
-        (else (loop expr ""))
+(define (pop str) (tail (reverse-string str) (>>len (reverse-string str))))
+(define (top str) (reverse-string (>> (reverse-string str))))
+(define (push str el) (string-append str " " el))
+
+(define (expr-rp expr)
+  (define (form-expr out op)
+    (display (string-append "out:" out "| op:" op "| " ">>op:" (>> op) "|\n"))
+    (if (string=? (>> op) "")
+        (tail out 1) ; remove empty space at the beggining
+        (form-expr (push out (top op)) (pop op))
+    )
+  )
+  
+  (define (loop str out op)
+    ;(display (string-append "str:" str "|out:" out "|op:" op "|\n" "|>>str:" (>> str) "|\n"))
+    (cond ((string=? "" str) (form-expr out op))
+          ((positive-number? (>> str)) (loop  (tail str (>>len str)) (push out (>> str)) op))
+          ((and (operator? (>> str)) (string=? "" op)) (loop (tail str (>>len str)) out (push op (>> str)))) ; empty op stack, just add operator
+          ((and (operator? (>> str)) (< (precedence (top op)) (precedence (>> str)))) (loop (tail str (>>len str)) out (push op (>> str)))) ; operator in stack has < priority than the currently read, push the new operator as well (TODO: CHECK EQUAL PRIORITY | LEFT)
+          ((and (operator? (>> str)) (>= (precedence (top op)) (precedence (>> str))))  ((lambda ()
+                                                                                               (if (>= (precedence (top (pop op))) (precedence (>> str)))
+                                                                                                   (loop (tail str (>>len str)) (push (push out (top op)) (top (pop op))) (push (pop (pop op)) (>> str)))
+                                                                                                   (loop (tail str (>>len str)) (push out (top op)) (push (pop op) (>> str)))
+                                                                                               )))) ; high priority-> pop and then push the new op
+    )
+  )
+  (if (expr-valid? expr)
+      (loop expr "" "")
+      #f
   )
 )
 
 
-  (define (loop str res)
-    ;(display (string-append "str:" str "\n"))
-    ;(display (string-append (>> str) "\n"))
-    ;(display  (string-length (>> str)))
-    (cond ((string=? "" str) res)
-          ((string=? (head str) " ") (loop (tail str) res))
-          (else (loop (substring str (string-length (>> str)) (string-length str))
-              (string-append res " " (>> str))
-              ))
-        )
-  )
+
+(expr-rp "10*20 + 30")
 
 ;(expr-valid? "10   * 20")
 ;(expr-valid? "10 20 + 5")
@@ -107,9 +103,3 @@
 
   
   ;(>> "      80     90 - ")
-
-  ;(substring? "10" " 10    +20")
-
-;(read-token " 20")
-;(different-types? (head "+ 20") "")
-;(tail "+ 20")
