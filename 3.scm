@@ -14,12 +14,7 @@
   )
   (loop str "")
 )
-  
-(define (precedence operator)
-  (cond ((or (string=? "+" operator) (string=? "-" operator)) 0)
-        ((or (string=? "*" operator) (string=? "/" operator)) 1)
-        (else 2)))
-
+ 
 (define (read-token str)
   (define (loop str res)
     (cond ((or (string=? "" str)
@@ -63,30 +58,34 @@
 (define (top str) (reverse-string (read-token (reverse-string str))))
 (define (push str el delim) (string-append str delim el))
 
-(define (loop str out op delim_out delim_op delim_form)
-  (define (form-expr out op) (if (string=? (read-token op) "") (tail out 1) (form-expr (push out (top op) delim_form) (pop op))))
+(define (shunting-yard str out op delim)
+  (define (form-expr out op) (if (string=? (read-token op) "") (tail out 1) (form-expr (push out (top op) "") (pop op))))
 
-  (define (loop1 str out op delim_out delim_op delim_form)
+  (define (precedence operator)
+    (cond ((or (string=? "+" operator) (string=? "-" operator)) 0)
+          ((or (string=? "*" operator) (string=? "/" operator)) 1)
+          (else 2))
+  )
+  
+  (define (loop1 str out op delim)
     (if (or (< (precedence (top op)) (precedence (read-token str))) (string=? "" (top op)))
-    (loop (tail str (read-token-len str)) out (push op (read-token str) " ") delim_out delim_op delim_form)
-    (loop1 str (push out (top op) " ") (pop op) delim_out delim_op delim_form))
+    (shunting-yard (tail str (read-token-len str)) out (push op (read-token str) "") delim)
+    (loop1 str (push out (top op) "") (pop op) delim))
   )
 
   (cond ((string=? "" (read-token str)) (form-expr out op))
         ((natural-number? (read-token str))
-         (loop  (tail str (read-token-len str)) (push out (read-token str) delim_out) op delim_out delim_op delim_form))
+         (shunting-yard  (tail str (read-token-len str)) (push out (read-token str) delim) op delim))
         ((and (operator? (read-token str)) (string=? "" op)) ; empty op stack
-         (loop (tail str (read-token-len str)) out (push op (read-token str) delim_op) delim_out delim_op delim_form)) 
-        ((and (operator? (read-token str)) (< (precedence (top op)) (precedence (read-token str)))) ; operator in stack has < priority 
-         (loop (tail str (read-token-len str)) out (push op (read-token str) delim_op) delim_out delim_op delim_form)) 
-        ((and (operator? (read-token str)) (>= (precedence (top op)) (precedence (read-token str)))) ; higher priority
-         (loop1 str out op delim_out delim_op delim_form)) 
+         (shunting-yard (tail str (read-token-len str)) out (push op (read-token str) "") delim)) 
+        ((and (operator? (read-token str)) (< (precedence (top op)) (precedence (read-token str)))) ; < priority 
+         (shunting-yard (tail str (read-token-len str)) out (push op (read-token str) "") delim)) 
+        ((and (operator? (read-token str)) (>= (precedence (top op)) (precedence (read-token str)))) ; >= priority
+         (loop1 str out op delim)) 
    )
 )
-
-
   
-(define (expr-rp expr) (if (expr-valid? expr) (loop expr "" "" "," " " " ") #f))
+(define (expr-rp expr) (if (expr-valid? expr) (shunting-yard expr "" "" ",") #f))
 
 (define (expr-eval expr)
   (define (eval-op operation operand1 operand2)
@@ -96,34 +95,31 @@
         ((string=? "/" operation) (quotient operand1 operand2))
         ((string=? "^" operation) (expt operand1 operand2))))
   
-  (define (func str out)
+  (define (evaluate str out)
     (cond ((and (string=? "" out) (string=? "" (read-token str))) 0)
           ((string=? "" (read-token str)) (string->number (read-token out)))
-          ((natural-number? (read-token str)) (func (tail str (read-token-len str)) (push out (read-token str) " ")))
+          ((natural-number? (read-token str)) (evaluate (tail str (read-token-len str)) (push out (read-token str) " ")))
           ((operator? (read-token str))
-           (func (tail str (read-token-len str)) (push (pop (pop out)) (number->string (eval-op (read-token str) (string->number (top (pop out))) (string->number (top out)))) " ")))
+           (evaluate (tail str (read-token-len str)) (push (pop (pop out)) (number->string (eval-op (read-token str) (string->number (top (pop out))) (string->number (top out)))) " ")))
     )
   )
-  (if (expr-valid? expr) (func (loop expr "" "" " " " " " ") "") #f)
+  (if (expr-valid? expr) (evaluate (shunting-yard expr "" "" " ") "") #f)
 )
 
-(expr-valid? "   10    ")
-
-(expr-eval "10   * 20")
-(expr-eval "10* 20 + 5")
-(expr-eval "++++ 5")
-;(expr-valid? "+++")
-;(expr-valid? "")
+;(expr-rp "10   * 20")
+;(expr-eval "10* 20 + 5")
+;(expr-eval "++++ 5")
+(expr-valid? "+++")
+(expr-valid? "")
 ;(expr-valid? "-5")
 ;(expr-valid? "-5 + 2 * 2 2")
 ;(expr-eval "3")
-(expr-eval "10 + 5* 2")
-;(expr-rp " 10*10+   10 * 5^ 2")
-(expr-eval "10/5*2")
+;(expr-eval "10 + 5* 2")
+(expr-eval " 10*10+   10 * 5^ 2")
+(expr-rp "10/5*2")
 ;(expr-eval "    10   ")
-;(expr-eval "   ")
-
+(expr-eval "   ")
 
 ;(quotient 11 0)
-(expr-eval "10+5*8/5^2+4/5-8")
+(expr-rp "10+5*8/5^2+4/5-8")
 (expr-eval "10+20*30+5*12^4/2^2+2^10")
