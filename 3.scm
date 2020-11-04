@@ -64,10 +64,10 @@
           (else 2))
   )
   
-  (define (loop1 str out op delim)
+  (define (update-op-priority str out op delim)
     (if (or (< (precedence (top op)) (precedence (read-token str))) (string=? "" (top op)))
     (shunting-yard (tail str (read-token-len str)) out (push op (read-token str) "") delim)
-    (loop1 str (push out (top op) "") (pop op) delim))
+    (update-op-priority str (push out (top op) "") (pop op) delim))
   )
 
   (cond ((string=? "" (read-token str)) (form-expr out op))
@@ -78,7 +78,7 @@
         ((and (operator? (read-token str)) (< (precedence (top op)) (precedence (read-token str)))) ; < priority 
          (shunting-yard (tail str (read-token-len str)) out (push op (read-token str) "") delim)) 
         ((and (operator? (read-token str)) (>= (precedence (top op)) (precedence (read-token str)))) ; >= priority
-         (loop1 str out op delim)) 
+         (update-op-priority str out op delim)) 
    )
 )
   
