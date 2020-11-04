@@ -1,8 +1,5 @@
-; considering that 0 is a natural number
-(define (natural-number? n) (and (integer? (string->number n)) (<= 0 (string->number n))))
-
+(define (natural-number? n) (and (integer? (string->number n)) (<= 0 (string->number n)))) ; considering 0 a natural number
 (define (operator? c) (or (string=? "+" c) (string=? "-" c) (string=? "*" c) (string=? "/" c) (string=? "^" c)))
-
 (define (different-types? str1 str2) (or (and (natural-number? str1) (operator? str2)) (and (natural-number? str2) (operator? str1))))
 
 (define (tail str ind) (if (= 0 (string-length str)) str (substring str ind (string-length str))))
@@ -106,7 +103,8 @@
   (if (expr-valid? expr) (evaluate (shunting-yard expr "" "" " ") "") #f)
 )
 
-;(expr-rp "10   * 20")
+(expr-eval "    10   ")
+(expr-rp "10   * 20")
 ;(expr-eval "10* 20 + 5")
 ;(expr-eval "++++ 5")
 (expr-valid? "+++")
@@ -117,10 +115,10 @@
 ;(expr-eval "10 + 5* 2")
 (expr-eval " 10*10+   10 * 5^ 2")
 (expr-rp "10/5*2")
-;(expr-eval "    10   ")
+
 (expr-eval "   ")
 
 ;(quotient 11 0)
 (expr-rp "10+5*8/5^2+4/5-8")
-(expr-eval "10+20*30+5*12^4/2^2+2^10")
+(expr-eval "10+20*30+5*12^4/2^2+2^10*4+2-1")
 (expr-eval "10+20*30/2^2+2^10")
