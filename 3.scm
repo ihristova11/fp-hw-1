@@ -1,4 +1,4 @@
-(define (positive-number? n) (and (integer? (string->number n)) (< 0 (string->number n))))
+(define (positive-number? n) (and (integer? (string->number n)) (<= 0 (string->number n))))
 
 (define (operator? c) (or (string=? "+" c) (string=? "-" c) (string=? "*" c) (string=? "/" c) (string=? "^" c)))
 
@@ -21,8 +21,10 @@
 
 (define (>> str)
   (define (loop str res)
-    (cond ((string=? "" str) res)
+    (cond ;((not (or (operator? (head str)) (positive-number? (head str)) (string=? " " (head str)) (string=? "" (head str)))) #f)
+          ((string=? "" str) res)
           ((different-types? (head str) res) res)
+          ((and (not (different-types? (head str) res)) (operator? (head str)) (not (string=? "" res))) res) ; may need to check if res ""
           ((and (string=? " " (head str)) (or (positive-number? res) (operator? res))) res)
           ((string=? " " (head str)) (loop (tail str 1) res))
           (else (loop (tail str 1) (string-append res (head str))))
@@ -75,14 +77,14 @@
   )
 
   (define (loop1 str out op delim_out delim_op delim_form)
-    (display (string-append "loop1||| str:" str "|out:" out "|op:" op "|\n"))
+    ;(display (string-append "loop1||| str:" str "|out:" out "|op:" op "|\n"))
     (if (or (< (precedence (top op)) (precedence (>> str))) (string=? "" (top op)))
     (loop (tail str (>>len str)) out (push op (>> str) " ") delim_out delim_op delim_form)
-    (loop1 str (push out (top op) "") (pop op) delim_out delim_op delim_form))
+    (loop1 str (push out (top op) " ") (pop op) delim_out delim_op delim_form))
   )
 
   
-    (display (string-append "str:" str "|out:" out "|op:" op "|\n" "|>>str:" (>> str) "|\n"))
+    ;(display (string-append "str:" str "|out:" out "|op:" op "|\n" "|>>str:" (>> str) "|\n"))
     (cond ((string=? "" (>> str)) (form-expr out op))
           ((positive-number? (>> str)) (loop  (tail str (>>len str)) (push out (>> str) delim_out) op delim_out delim_op delim_form))
           ((and (operator? (>> str)) (string=? "" op)) (loop (tail str (>>len str)) out (push op (>> str) delim_op) delim_out delim_op delim_form)) ; empty op stack, just add operator
@@ -96,7 +98,7 @@
   
 (define (expr-rp expr)
   (if (expr-valid? expr)
-      (loop expr "" "" "," " " "")
+      (loop expr "" "" "," " " " ")
       #f
   )
 )
@@ -107,18 +109,24 @@
   (cond ((string=? "*" operation) (* operand1 operand2))
         ((string=? "+" operation) (+ operand1 operand2))
         ((string=? "-" operation) (- operand1 operand2))
-        ((string=? "/" operation) (/ operand1 operand2)) ; quotation
+        ((string=? "/" operation) (quotient operand1 operand2)) ; quotation
         ((string=? "^" operation) (expt operand1 operand2))
   )
 )
 
 (define (expr-eval expr)
   (define (func str out sum)
-    ;(display (string-append "str:" str "|out:" out "|sum:")) (display sum) (display "|\n")
+    (display (string-append "str:" str "|out:" out "|sum:")) (display sum) (display "|\n")
     (cond ((and (string=? "" out) (string=? "" (>> str))) 0)
           ((string=? "" (>> str)) (string->number (>> out)))
           ((positive-number? (>> str)) (func (tail str (>>len str)) (push out (>> str) " ") sum))
-          ((operator? (>> str)) (func (tail str (>>len str)) (push (pop (pop out)) (number->string (+ sum (eval-op (>> str) (string->number (top (pop out))) (string->number (top out))))) " ") sum ))
+          ((operator? (>> str))
+           (func
+            (tail str (>>len str))
+            (push (pop (pop out))
+                  (number->string (+ sum (eval-op (>> str)
+                                                  (string->number (top (pop out)))
+                                                  (string->number (top out))))) " ") sum))
     )
   )
   (if (expr-valid? expr)
@@ -126,7 +134,7 @@
       #f
   )
 )
-
+;(top "  11  0")
 
 ;(expr-rp "")
 ;(expr-rp "  5;  ")
@@ -148,5 +156,6 @@
 ;(expr-eval "    10   ")
 ;(expr-eval "   ")
 
+
 (expr-eval "10+5*8/5^2+4/5-8")
-;(expr-rp "10+20*30/2^2+2^10")
+(expr-eval "10+20*30/2^2+2^10")
