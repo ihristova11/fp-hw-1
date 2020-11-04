@@ -102,23 +102,3 @@
   )
   (if (expr-valid? expr) (evaluate (shunting-yard expr "" "" " ") "") #f)
 )
-
-(expr-eval "    10   ")
-(expr-rp "10   * 20")
-;(expr-eval "10* 20 + 5")
-;(expr-eval "++++ 5")
-(expr-valid? "+++")
-(expr-valid? "")
-;(expr-valid? "-5")
-;(expr-valid? "-5 + 2 * 2 2")
-;(expr-eval "3")
-;(expr-eval "10 + 5* 2")
-(expr-eval " 10*10+   10 * 5^ 2")
-(expr-rp "10/5*2")
-
-(expr-eval "   ")
-
-;(quotient 11 0)
-(expr-rp "10+5*8/5^2+4/5-8")
-(expr-eval "10+20*30+5*12^4/2^2+2^10*4+2-1")
-(expr-eval "10+20*30/2^2+2^10")
