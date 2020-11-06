@@ -11,28 +11,25 @@
   )
 )
 
-(define (accumulate-i op term init a next b)
-  (define (loop i result)
-    (if (< b i )
-        (loop (next i) (op result (term i)))
-        result))
-  (loop a init))
-
 (define (!! n)
   (accumulate ((lambda () (if (odd? n) 1 2))) n (lambda (x y) (* x y)) id (lambda (x) (+ x 2)) 1)
 )
 
+; factorial
 (define (fact n)
   (accumulate 1 n (lambda (x y) (* x y)) id 1+ 1)
 )
 
+; reverse number
 (define (rev-num n)
   (accumulate-i (lambda (x y) (+ (* x 10) y)) (lambda (x) (remainder x 10)) 0 n (lambda (x) (quotient x 10)) 0))
 
+; binomial
 (define (nchk n k)
   (/ (fact n) (* (fact k) (fact (- n k))))
 )
 
+; binomial 
 (define (nchk* n k)
   (accumulate 0 (- k 1) * (lambda (i) (/ (- n i) (- k i))) 1+ 1)
 )
@@ -41,7 +38,7 @@
   (accumulate 1 n * (lambda (i) 2) 1+ 1)
 )
 
-; iterative
+; iterative filter-accumulate
 (define (filter-acc p? from to op term next acc)
   (cond ((> from to) acc)
         ((p? from) (filter-acc p? (next from) to op term next (op acc (term from))))
@@ -49,7 +46,7 @@
   )
 )
 
-; recursive
+; recursive filter-accumulate
 (define (filter-accum p? op nv a b term next)
   (cond ((> a b) nv)
         ((p? a) (op (term a)
