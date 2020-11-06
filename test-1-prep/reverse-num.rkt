@@ -41,9 +41,31 @@
   (accumulate 1 n * (lambda (i) 2) 1+ 1)
 )
 
+; iterative
+(define (filter-acc p? from to op term next acc)
+  (cond ((> from to) acc)
+        ((p? from) (filter-acc p? (next from) to op term next (op acc (term from))))
+        (else (filter-acc p? (next from) to op term next acc))
+  )
+)
+
+; recursive
+(define (filter-accum p? op nv a b term next)
+  (cond ((> a b) nv)
+        ((p? a) (op (term a)
+                    (filter-accum p? op nv (next a) b term next)))
+        (else       (filter-accum p? op nv (next a) b term next))))
+
+
+
 (fact 10)
 (!! 4)
 (nchk 3 2)
 (2^ 3)
 
+(define (!!* n)
+  (filter-acc (if (even? n) even? odd?) 1 n * id 1+ 1)
+)
+
+(!!* 5)
 ;(rev-num 12345)
