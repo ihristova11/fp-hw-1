@@ -9,6 +9,14 @@
   )
 )
 
+; приема f функция и xs списък, връща списък с f върху елементите
+(define (map f xs)
+  (if (null? xs)
+      '()
+      (cons (f (car xs)) (map f (cdr xs)))
+  )
+)
+
 
 (define tests
   (test-suite "take while"
