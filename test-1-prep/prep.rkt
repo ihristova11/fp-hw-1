@@ -38,14 +38,6 @@
   (accumulate 1 n * (lambda (i) 2) 1+ 1)
 )
 
-; iterative filter-accumulate
-(define (filter-acc p? from to op term next acc)
-  (cond ((> from to) acc)
-        ((p? from) (filter-acc p? (next from) to op term next (op acc (term from))))
-        (else (filter-acc p? (next from) to op term next acc))
-  )
-)
-
 ; recursive filter-accumulate
 (define (filter-accum p? op nv a b term next)
   (cond ((> a b) nv)
@@ -55,14 +47,62 @@
 
 
 
-(fact 10)
-(!! 4)
-(nchk 3 2)
-(2^ 3)
+;(fact 10)
+;(!! 4)
+;(nchk 3 2)
+;(2^ 3)
+
+; iterative filter-accumulate
+(define (filter-acc p? from to op term next acc)
+  (cond ((> from to) acc)
+        ((p? from) (filter-acc p? (next from) to op term next (op acc (term from))))
+        (else (filter-acc p? (next from) to op term next acc))
+  )
+)
 
 (define (!!* n)
   (filter-acc (if (even? n) even? odd?) 1 n * id 1+ 1)
 )
 
-(!!* 5)
+;(!!* 5)
 ;(rev-num 12345)
+
+; Да се напише функция (divisors-sum n), която намира сумата на всички делители на естественото число n.
+(define (divisors-sum n)
+  (filter-acc (lambda (i) (= 0 (remainder n i))) 1 n + id 1+ 0)
+)
+
+;(divisors-sum 12)
+
+; Да се напише функция (count p? a b), която проверява за колко измежду числата в целочисления интервал [a;b] е верен предиката p?
+(define (count p? a b)
+  (filter-acc p? a b + (lambda (i) 1) 1+ 0)
+)
+
+;(count even? 1 10)
+
+; Да се напише функция (prime? n), която проверява дали дадено число е просто:
+
+(define (prime? n)
+  (= (divisors-sum n) (1+ n))
+)
+
+;(prime? 6)
+
+(define (num-len n)
+  (ceiling (log (1+ n) 10))
+)
+
+(define (narcisstic? n)
+  (define (loop i res)
+    (if (< 0 i)
+        (loop (quotient i 10) (+ res (expt (remainder i 10) (num-len n))))
+        res
+    )
+  )
+  (= n (loop n 0))
+)
+
+;(num-len 990)
+
+(narcisstic? 153)
