@@ -67,10 +67,11 @@
 
 ; refactor to use recursive check for each node between {} 
 (define (tree? str)
-  (define (update-stack s) 
+  
+ (define (loop str stack)
+   (define (update-stack s) 
     (cons "*" (cdr (cdr (cdr (cdr s)))))
   )
- (define (loop str stack)
    ;(display "s:") (display stack) (display "\n")
    ;(display "el:") (display (>> str)) (display "\n")
   ; (display ">>len:") (display (>>len str)) (display "\n")
@@ -81,7 +82,7 @@
          ((and (> (length stack) 0) (= 1 (type el)) (string=? "{" (car stack))) #f)
          ((not (or (= 4 (type el)) (= 3 (type el)))) (loop (tail str (>>len str)) (cons el stack))) ; push to stack
          ((and (>= (length stack) 4) (= 3 (type el))) (loop (tail str (>>len str)) (update-stack stack))) ; pop the last 4, push *
-         ((and (< (length stack) 4) (= 3 (type el))) #f) 
+         ((and (< (length stack) 4) (= 3 (type el))) #f)
    )
      )
  )
@@ -91,9 +92,39 @@
 
 ;(tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
 
+
+
 (define (string->tree str)
-  #f
+   (define (loop str stack)
+   (define (update-stack s)
+     (define (construct-list count s lst)
+       (if (= count 0) lst
+           (construct-list (- count 1) (cdr s) ((lambda () (if (and (not (list? (car s))) (string=? "*" (car s))) (cons '() lst) (cons (car s) lst))))
+       )
+     ))
+    (cons (construct-list 3 s '()) (cdr (cdr (cdr (cdr s)))))
+  )
+   (display "s:") (display stack) (display "\n")
+   ;(display "el:") (display (>> str)) (display "\n")
+  ; (display ">>len:") (display (>>len str)) (display "\n")
+   (display "str:") (display str) (display "\n") (display "\n") 
+   (let ((el (>> str)))
+   (cond ((not (>> str)) #f)
+         ((string=? "" str) stack)
+         ((and (> (length stack) 0) (= 1 (type el)) (and (not (list? (car stack))) (string=? "{" (car stack)))) #f)
+         ((not (or (= 4 (type el)) (= 3 (type el)))) (loop (tail str (>>len str)) (cons el stack))) ; push to stack
+         ((and (>= (length stack) 4) (= 3 (type el))) (loop (tail str (>>len str)) (update-stack stack))) ; pop the last 4, push *
+         ((and (< (length stack) 4) (= 3 (type el))) #f)
+   )
+     )
+ )
+  (if (tree? str)
+      (loop str '())
+      #f
+  )
 )
+
+(string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
 
 ; tests for >>
 (define tests>>
@@ -121,6 +152,7 @@
     (check-true (tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
     (check-true (tree? "{5**}"))
     (check-false (tree? "}"))
+    (check-false (tree? "              { * * *}"))
     (check-false (tree? "{5 5 5 5"))
     (check-false (tree? "{{5 5 *} {* 5 5}*}")) 
     (check-true (tree? "{2{4**}*}"))
