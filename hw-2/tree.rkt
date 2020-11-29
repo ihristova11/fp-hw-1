@@ -94,21 +94,22 @@
 
 
 
-(define (string->tree str)
+
+
+(define (string->tree str) ; check for the outer ()
    (define (loop str stack)
    (define (update-stack s)
      (define (construct-list count s lst)
        (if (= count 0) lst
-           (construct-list (- count 1) (cdr s) ((lambda () (if (and (not (list? (car s))) (string=? "*" (car s))) (cons '() lst) (cons (car s) lst))))
-       )
-     ))
+           (construct-list (- count 1) (cdr s)
+                           ((lambda ()
+                              (cond ((and (not (list? (car s))) (string=? "*" (car s))) (cons '() lst))
+                                  ((not (list? (car s))) (cons (string->number (car s)) lst))
+                                  (else (cons (car s) lst))))))))
     (cons (construct-list 3 s '()) (cdr (cdr (cdr (cdr s)))))
   )
-   (display "s:") (display stack) (display "\n")
-   ;(display "el:") (display (>> str)) (display "\n")
-  ; (display ">>len:") (display (>>len str)) (display "\n")
-   (display "str:") (display str) (display "\n") (display "\n") 
-   (let ((el (>> str)))
+   ;(display "s:") (display stack) (display "\n")
+   (let ((el (>> str))) ; todo: refactor, replication of code
    (cond ((not (>> str)) #f)
          ((string=? "" str) stack)
          ((and (> (length stack) 0) (= 1 (type el)) (and (not (list? (car stack))) (string=? "{" (car stack)))) #f)
@@ -124,7 +125,18 @@
   )
 )
 
-(string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
+(define (balanced? tree) ;https://www.geeksforgeeks.org/how-to-determine-if-a-binary-tree-is-balanced/
+  (define (height t)
+    
+  )
+  (cond ((null? tree) #t)
+        (((height )))
+        (else #f)
+  )
+)
+
+
+;(string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
 
 ; tests for >>
 (define tests>>
@@ -165,3 +177,4 @@
 
 (run-tests tests>> 'verbose)
 (run-tests tests-tree? 'verbose)
+
