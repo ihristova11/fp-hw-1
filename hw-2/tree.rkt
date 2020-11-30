@@ -61,10 +61,6 @@
   (loop str "" 0)
 )
 
-; "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"
-; *
-
-
 ; refactor to use recursive check for each node between {} 
 (define (tree? str)
   
@@ -90,12 +86,6 @@
   (and lst (= 1 (length lst)) (string=? "*" (car lst))))
 )
 
-;(tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
-
-
-
-
-
 (define (string->tree str) ; check for the outer ()
    (define (loop str stack)
    (define (update-stack s)
@@ -120,39 +110,31 @@
      )
  )
   (if (tree? str)
-      (loop str '())
+      (car (loop str '()))
       #f
   )
 )
 
+;(define (abs x) (if (< x 0) (* -1 x) x)) ; should be inner | delete
+
 (define left-tree cadr)
 (define right-tree caddr)
-(define (height tree) (length tree)) ; move in balanced? if needed
+(define (height tree)
+  (if (null? tree) 0 (+ 1 (max (height (right-tree tree)) (height (left-tree tree)))))) ; move in balanced? if needed
 
 (define (balanced? tree) ;https://www.geeksforgeeks.org/how-to-determine-if-a-binary-tree-is-balanced/
 
-  (display "tree:") (display tree) (display "\n")
+  ;(display "tree:") (display tree) (display "\n")
   ;(display "left:") (display (left-tree tree)) (display "\n")
   ;(display "right:") (display (right-tree tree)) (display "\n") (display "\n")
 
     (cond ((null? tree) #t) 
-        ((let ((height-diff (- (height (right-tree tree)) (height (left-tree tree)))))
-         (and (balanced? (right-tree tree))
-              (balanced? (left-tree tree))
-              (or (<= -1 height-diff)
-                   (<= height-diff 1))) #t)) ; -1? exists
-        (else #f)
+          ((and (<= (abs (- (height (right-tree tree)) (height (left-tree tree)))) 1)
+                (balanced? (right-tree tree))
+                (balanced? (left-tree tree))) #t) ; -1? exists
+          (else #f)
   )
 )
-
-
-;(define t (car (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
-
-;t
-;(null? (cadr (cadr (cadr t))))
-;(cddr t)
-;(caddr (cadr (caddr (caddr t))))
-;(balanced? t)
 
 ; tests for >>
 (define tests>>
@@ -192,9 +174,11 @@
 
 
 ; tests for balanced?
-(define tests-balanced? ; todo: write more
+(define tests-balanced? ; todo: write more, should we check if the tree is valid or not
   (test-suite "balanced?"
-    (check-true (tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
+    (check-false (balanced? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
+    (check-true (balanced? '()))
+    (check-false (balanced? (string->tree "{111 {2 {2 {2 {2 * *} *} *} {6 * *}} *}")))
   )
 )
 
