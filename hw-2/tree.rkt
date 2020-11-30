@@ -144,8 +144,8 @@
 (define (tree->string tree)
   (define (helper tree res)
     (if (null? tree)
-        (begin (string-append res "*") res)
-        (string-append res "{ " (number->string (root tree)) " " (helper (left-tree tree) res) " " (helper (right-tree tree) res) " }")
+        "*"
+        (string-append res "{" (number->string (root tree)) " " (helper (left-tree tree) res) " " (helper (right-tree tree) res) "}")
     )
   )
   (helper tree "")
