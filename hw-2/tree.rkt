@@ -125,18 +125,28 @@
   )
 )
 
+(define left-tree cadr)
+(define right-tree caddr)
+(define (height tree) (length tree)) ; move in balanced? if needed
+
 (define (balanced? tree) ;https://www.geeksforgeeks.org/how-to-determine-if-a-binary-tree-is-balanced/
-  (define (height t)
-    
-  )
-  (cond ((null? tree) #t)
-        (((height )))
+  (let ((height-diff (- (height (right-tree tree)) (height (left-tree tree)))))
+    (cond ((null? tree) #t)
+        ((and (balanced? (right-tree tree))
+              (balanced? (left-tree tree))
+              ((or (<= -1 height-diff) (<= height-diff 1)) #t))) ; -1? exists
         (else #f)
-  )
+  ))
 )
 
 
-;(string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
+(define t (car (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
+
+t
+(null? (cadr (cadr (cadr t))))
+(cddr t)
+(caddr (cadr (caddr (caddr t))))
+(balanced? t)
 
 ; tests for >>
 (define tests>>
