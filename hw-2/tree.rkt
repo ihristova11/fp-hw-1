@@ -141,6 +141,18 @@
   (helper tree -inf.0 +inf.0)
 )
 
+(define (tree->string tree)
+  (define (helper tree res)
+    (if (null? tree)
+        (begin (string-append res "*") res)
+        (string-append res "{ " (number->string (root tree)) " " (helper (left-tree tree) res) " " (helper (right-tree tree) res) " }")
+    )
+  )
+  (helper tree "")
+)
+
+(tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
+
 ; tests for >>
 (define tests>>
   (test-suite ">>"
