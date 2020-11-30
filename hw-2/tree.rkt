@@ -119,6 +119,7 @@
 
 (define left-tree cadr)
 (define right-tree caddr)
+(define root car)
 (define (height tree)
   (if (null? tree) 0 (+ 1 (max (height (right-tree tree)) (height (left-tree tree)))))) ; move in balanced? if needed
 
@@ -128,6 +129,17 @@
                 (balanced? (right-tree tree))
                 (balanced? (left-tree tree))) #t) ; -1? exists
           (else #f)))
+
+(define (ordered? tree)
+  (define (helper tree minValue maxValue)
+    (cond ((and (not (null? tree)) (or (< (root tree) minValue) (>= (root tree) maxValue))) #f)
+          ((and (not (null? tree)) (not (ordered? (left-tree tree)))) #f)
+          ((and (not (null? tree)) (not (ordered? (right-tree tree)))) #f)
+          (else #t)
+    )
+  )
+  (helper tree -inf.0 +inf.0)
+)
 
 ; tests for >>
 (define tests>>
@@ -162,6 +174,7 @@
     (check-true (tree? "{2 {4 * *} *}"))
     (check-true (tree? "{2     {4     * *}               *}"))
     (check-false (tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}"))
+    (check-true (tree? "{5 * *}"))
   )
 )
 
@@ -175,6 +188,15 @@
   )
 )
 
+(define tests-ordered?
+  (test-suite "ordered?"
+     (check-true (ordered? (string->tree "{8 {3 {1 * *} {6 {4 * *} {7 * *}}} {10 * {14 {13 * *} *}}}")))
+     (check-true (ordered? (string->tree "{3 * *}")))
+     (check-false (balanced? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
+  )
+)
+
 (run-tests tests>> 'verbose)
 (run-tests tests-tree? 'verbose)
 (run-tests tests-balanced? 'verbose)
+(run-tests tests-ordered? 'verbose)
