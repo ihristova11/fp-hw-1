@@ -130,23 +130,29 @@
 (define (height tree) (length tree)) ; move in balanced? if needed
 
 (define (balanced? tree) ;https://www.geeksforgeeks.org/how-to-determine-if-a-binary-tree-is-balanced/
-  (let ((height-diff (- (height (right-tree tree)) (height (left-tree tree)))))
-    (cond ((null? tree) #t)
-        ((and (balanced? (right-tree tree))
+
+  (display "tree:") (display tree) (display "\n")
+  ;(display "left:") (display (left-tree tree)) (display "\n")
+  ;(display "right:") (display (right-tree tree)) (display "\n") (display "\n")
+
+    (cond ((null? tree) #t) 
+        ((let ((height-diff (- (height (right-tree tree)) (height (left-tree tree)))))
+         (and (balanced? (right-tree tree))
               (balanced? (left-tree tree))
-              ((or (<= -1 height-diff) (<= height-diff 1)) #t))) ; -1? exists
+              (or (<= -1 height-diff)
+                   (<= height-diff 1))) #t)) ; -1? exists
         (else #f)
-  ))
+  )
 )
 
 
-(define t (car (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
+;(define t (car (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
 
-t
-(null? (cadr (cadr (cadr t))))
-(cddr t)
-(caddr (cadr (caddr (caddr t))))
-(balanced? t)
+;t
+;(null? (cadr (cadr (cadr t))))
+;(cddr t)
+;(caddr (cadr (caddr (caddr t))))
+;(balanced? t)
 
 ; tests for >>
 (define tests>>
@@ -168,7 +174,7 @@ t
   )
 )
 
-; tests for >>
+; tests for tree?
 (define tests-tree?
   (test-suite "tree?"
     (check-true (tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
@@ -185,6 +191,13 @@ t
 )
 
 
+; tests for balanced?
+(define tests-balanced? ; todo: write more
+  (test-suite "balanced?"
+    (check-true (tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
+  )
+)
+
 (run-tests tests>> 'verbose)
 (run-tests tests-tree? 'verbose)
-
+(run-tests tests-balanced? 'verbose)
