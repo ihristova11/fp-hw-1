@@ -122,19 +122,12 @@
 (define (height tree)
   (if (null? tree) 0 (+ 1 (max (height (right-tree tree)) (height (left-tree tree)))))) ; move in balanced? if needed
 
-(define (balanced? tree) ;https://www.geeksforgeeks.org/how-to-determine-if-a-binary-tree-is-balanced/
-
-  ;(display "tree:") (display tree) (display "\n")
-  ;(display "left:") (display (left-tree tree)) (display "\n")
-  ;(display "right:") (display (right-tree tree)) (display "\n") (display "\n")
-
+(define (balanced? tree)
     (cond ((null? tree) #t) 
           ((and (<= (abs (- (height (right-tree tree)) (height (left-tree tree)))) 1)
                 (balanced? (right-tree tree))
                 (balanced? (left-tree tree))) #t) ; -1? exists
-          (else #f)
-  )
-)
+          (else #f)))
 
 ; tests for >>
 (define tests>>
