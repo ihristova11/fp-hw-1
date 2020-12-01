@@ -210,7 +210,8 @@
 
 (define tests-tree->string ; todo: add more, would be better not to depend on other functions
   (test-suite "tree->string"
-     (check-equal? (tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")) "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
+     (check-equal? (tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
+                   "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
   )
 )
 
