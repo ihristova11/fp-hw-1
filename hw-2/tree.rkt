@@ -159,7 +159,14 @@
 
 (define (tree->stream tree order)
   (define (inorder tree)
-    #f
+      (if (null? tree)
+          (display "-")
+          (begin
+            (inorder (left-tree tree))
+            (display (root tree))
+            (inorder (right-tree tree))
+          )
+      )
   )
 
   (define (preorder tree)
@@ -170,14 +177,14 @@
     #f
   )
   
-  (cond ((eq? order 'inorder) #f)
-        ((eq? order 'postorder) #f)
-        ((eq? order 'preorder) #f)
+  (cond ((eq? order 'inorder) (inorder tree))
+        ((eq? order 'postorder) (postorder tree))
+        ((eq? order 'preorder) (preorder tree))
   )
 )
 
-
-
+(tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'inorder)
+(display "\n")
 
 
 
