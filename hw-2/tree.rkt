@@ -158,23 +158,26 @@
 
 
 (define (tree->stream tree order)
-  (define (inorder tree)
-      (if (null? tree)
-          (display "-")
-          (begin
-            (inorder (left-tree tree))
-            (display (root tree))
-            (inorder (right-tree tree))
-          )
-      )
-  )
+  ; искаме да върнем списък от елементите на дървото - ляво, корен, дясно
+(define (inorder tree)
+  (cond ((null? tree) empty-stream)
+        (else (stream-append (inorder (left-tree tree))
+                             (stream (root tree))
+                             (inorder (right-tree tree)))))
+)
 
   (define (preorder tree)
-    #f
+    (cond ((null? tree) empty-stream)
+        (else (stream-append (stream (root tree))
+                             (preorder (left-tree tree))                     
+                             (preorder (right-tree tree)))))
   )
 
   (define (postorder tree)
-    #f
+    (cond ((null? tree) empty-stream)
+        (else (stream-append (postorder (left-tree tree))                     
+                             (postorder (right-tree tree))
+                             (stream (root tree)))))
   )
   
   (cond ((eq? order 'inorder) (inorder tree))
@@ -183,7 +186,9 @@
   )
 )
 
-(tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'inorder)
+(stream->list (tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'inorder))
+(stream->list (tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'preorder))
+(stream->list (tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'postorder))
 (display "\n")
 
 
