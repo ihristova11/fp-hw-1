@@ -1,4 +1,5 @@
 #lang racket/base
+(require racket/stream)
 
  ; move the tests in the other file
 (require rackunit)
@@ -151,7 +152,37 @@
   (helper tree "")
 )
 
-(tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
+;(tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
+
+;(stream-first (stream-rest (stream-cons "5" (stream-cons "6" empty-stream))))
+
+
+(define (tree->stream tree order)
+  (define (inorder tree)
+    #f
+  )
+
+  (define (preorder tree)
+    #f
+  )
+
+  (define (postorder tree)
+    #f
+  )
+  
+  (cond ((eq? order 'inorder) #f)
+        ((eq? order 'postorder) #f)
+        ((eq? order 'preorder) #f)
+  )
+)
+
+
+
+
+
+
+
+
 
 ; tests for >>
 (define tests>>
@@ -189,7 +220,6 @@
     (check-true (tree? "{5 * *}"))
   )
 )
-
 
 ; tests for balanced?
 (define tests-balanced? ; todo: write more, should we check if the tree is valid or not
