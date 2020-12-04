@@ -1,10 +1,4 @@
-#lang racket/base
 (require racket/stream)
-
- ; move the tests in the other file
-(require rackunit)
-(require rackunit/text-ui)
-
 
 (define (natural? n) (and (integer? (string->number n)) (<= 0 (string->number n)))) ; considering 0 a natural number
 
@@ -62,17 +56,13 @@
   (loop str "" 0)
 )
 
-; refactor to use recursive check for each node between {} 
+
 (define (tree? str)
   
  (define (loop str stack)
    (define (update-stack s) 
     (cons "*" (cdr (cdr (cdr (cdr s)))))
   )
-   ;(display "s:") (display stack) (display "\n")
-   ;(display "el:") (display (>> str)) (display "\n")
-  ; (display ">>len:") (display (>>len str)) (display "\n")
-   ;(display "str:") (display str) (display "\n") (display "\n") 
    (let ((el (>> str)))
    (cond ((not (>> str)) #f)
          ((string=? "" str) stack)
@@ -87,7 +77,7 @@
   (and lst (= 1 (length lst)) (string=? "*" (car lst))))
 )
 
-(define (string->tree str) ; check for the outer ()
+(define (string->tree str) 
    (define (loop str stack)
    (define (update-stack s)
      (define (construct-list count s lst)
@@ -99,7 +89,7 @@
                                   (else (cons (car s) lst))))))))
     (cons (construct-list 3 s '()) (cdr (cdr (cdr (cdr s)))))
   )
-   ;(display "s:") (display stack) (display "\n")
+  
    (let ((el (>> str))) ; todo: refactor, replication of code
    (cond ((not (>> str)) #f)
          ((string=? "" str) stack)
@@ -116,16 +106,55 @@
   )
 )
 
-;(define (abs x) (if (< x 0) (* -1 x) x)) ; should be inner | delete
+(define empty-tree? null?)
+(define empty-tree '())
+(define (number-length n)
+  (define (loop n count)
+    (if (> n 0)
+        (loop (quotient n 10) (+ 1 count))
+        count)
+  )
+  (loop n 0)
+)
 
 (define left-tree cadr)
 (define right-tree caddr)
 (define root car)
 (define (height tree)
-  (if (null? tree) 0 (+ 1 (max (height (right-tree tree)) (height (left-tree tree)))))) ; move in balanced? if needed
+  (if (null? tree) 0 (+ 1 (max (height (right-tree tree)) (height (left-tree tree))))))
+
+(define (create-sizes-tree tree)
+  (define (get-visual-height tree)
+    (if (empty-tree? tree) 0
+        (caar tree))
+  )
+
+  (define (get-visual-width tree)
+    (if (empty-tree? tree) 0
+        (cdar tree))
+  )
+  
+  (cond
+    ((empty-tree? tree) empty-tree)
+    (else
+     (let*
+         ((left (create-sizes-tree (left-tree tree)))
+          (right (create-sizes-tree (right-tree tree)))
+          (root-length (number-length (root tree)))
+          (height-l (get-visual-height left))
+          (height-r (get-visual-height right))
+          (width-l (get-visual-width left))
+          (width-r (get-visual-width right))
+          (new-root (cons (+ height-r height-l 1) (+ 1 width-l width-r root-length))))
+       (list new-root left right)))))
+
+;(create-sizes-tree (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
+(create-sizes-tree (string->tree "{10 {15 {2 * *} {7 * *}} {5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}}"))
+
+;(width (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
 
 (define (balanced? tree)
-    (cond ((null? tree) #t) 
+    (cond ((null? tree) #t)
           ((and (<= (abs (- (height (right-tree tree)) (height (left-tree tree)))) 1)
                 (balanced? (right-tree tree))
                 (balanced? (left-tree tree))) #t) ; -1? exists
@@ -154,11 +183,8 @@
 
 ;(tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
 
-;(stream-first (stream-rest (stream-cons "5" (stream-cons "6" empty-stream))))
-
 
 (define (tree->stream tree order)
-  ; искаме да върнем списък от елементите на дървото - ляво, корен, дясно
 (define (inorder tree)
   (cond ((null? tree) empty-stream)
         (else (stream-append (inorder (left-tree tree))
@@ -185,80 +211,3 @@
         ((eq? order 'preorder) (preorder tree))
   )
 )
-
-(stream->list (tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'inorder))
-(stream->list (tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'preorder))
-(stream->list (tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'postorder))
-(display "\n")
-
-
-
-
-
-
-; tests for >>
-(define tests>>
-  (test-suite ">>"
-    (check-equal? (>> "") "")
-    (check-equal? (>> "     ") "")
-    (check-equal? (>> "}") "}")
-    (check-equal? (>> "{") "{")
-    (check-false (>> "a"))
-    (check-false (>> "   _{"))
-    (check-equal? (>> "1 ") "1")
-    (check-equal? (>> " 1 ") "1")
-    (check-equal? (>> "* 1 ") "*")
-    (check-equal? (>> "     * 1 ") "*")
-    (check-equal? (>> "22*1 ") "22")
-    (check-equal? (>> "{12*} ") "{")
-    (check-equal? (>> "{{12*} ") "{")
-    (check-equal? (>> " { {12*} ") "{")
-  )
-)
-
-; tests for tree?
-(define tests-tree?
-  (test-suite "tree?"
-    (check-true (tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
-    (check-true (tree? "{5**}"))
-    (check-false (tree? "}"))
-    (check-false (tree? "              { * * *}"))
-    (check-false (tree? "{5 5 5 5"))
-    (check-false (tree? "{{5 5 *} {* 5 5}*}")) 
-    (check-true (tree? "{2{4**}*}"))
-    (check-true (tree? "{2 {4 * *} *}"))
-    (check-true (tree? "{2     {4     * *}               *}"))
-    (check-false (tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}"))
-    (check-true (tree? "{5 * *}"))
-  )
-)
-
-; tests for balanced?
-(define tests-balanced? ; todo: write more, should we check if the tree is valid or not
-  (test-suite "balanced?"
-    (check-false (balanced? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
-    (check-true (balanced? '()))
-    (check-false (balanced? (string->tree "{111 {2 {2 {2 {2 * *} *} *} {6 * *}} *}")))
-  )
-)
-
-(define tests-ordered?
-  (test-suite "ordered?"
-     (check-true (ordered? (string->tree "{8 {3 {1 * *} {6 {4 * *} {7 * *}}} {10 * {14 {13 * *} *}}}")))
-     (check-true (ordered? (string->tree "{3 * *}")))
-     (check-false (balanced? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
-  )
-)
-
-(define tests-tree->string ; todo: add more, would be better not to depend on other functions
-  (test-suite "tree->string"
-     (check-equal? (tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
-                   "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
-  )
-)
-
-(run-tests tests>> 'verbose)
-(run-tests tests-tree? 'verbose)
-(run-tests tests-balanced? 'verbose)
-(run-tests tests-ordered? 'verbose)
-(run-tests tests-tree->string 'verbose)
