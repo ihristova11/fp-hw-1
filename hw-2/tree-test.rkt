@@ -76,6 +76,13 @@
      (test-equal? "->{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"
                   (tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
                    "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
+     (test-equal? "empty tree->*"
+                  (tree->string '()) "*")
+     (test-equal? "{3 * *}" (tree->string (string->tree "{3**}")) "{3 * *}")
+  )
+
+  (test-suite "tree->stream"
+     (test-equal? "" #t #t)
   )
 )
 
