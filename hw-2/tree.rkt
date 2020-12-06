@@ -106,17 +106,6 @@
   )
 )
 
-(define empty-tree? null?)
-(define empty-tree '())
-(define (number-length n)
-  (define (loop n count)
-    (if (> n 0)
-        (loop (quotient n 10) (+ 1 count))
-        count)
-  )
-  (loop n 0)
-)
-
 (define left-tree cadr)
 (define right-tree caddr)
 (define root car)
