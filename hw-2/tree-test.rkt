@@ -1,8 +1,8 @@
 #lang racket/base
 (require rackunit rackunit/gui racket/include)
+
 (include "tree.rkt")
 
-; tests for >>
 (test/gui
   (test-suite ">>"
     (check-equal? (>> "") "")
@@ -22,8 +22,6 @@
   )
 
 
-; tests for tree?
-;(define tests-tree?
   (test-suite "tree?"
     (check-true (tree? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
     (check-true (tree? "{5**}"))
@@ -39,8 +37,7 @@
   )
 
 
-; tests for balanced?
-;(define tests-balanced? ; todo: write more, should we check if the tree is valid or not
+ ; todo: write more, should we check if the tree is valid or not
   (test-suite "balanced?"
     (check-false (balanced? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
     (check-true (balanced? '()))
@@ -48,15 +45,14 @@
   )
 
 
-;(define tests-ordered?
+
   (test-suite "ordered?"
      (check-true (ordered? (string->tree "{8 {3 {1 * *} {6 {4 * *} {7 * *}}} {10 * {14 {13 * *} *}}}")))
      (check-true (ordered? (string->tree "{3 * *}")))
      (check-false (balanced? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
   )
-;)
 
-;(define tests-tree->string ; todo: add more, would be better not to depend on other functions
+ ; todo: add more, would be better not to depend on other functions
   (test-suite "tree->string"
      (check-equal? (tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
                    "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
