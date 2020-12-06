@@ -5,20 +5,20 @@
 
 (test/gui
   (test-suite ">>"
-    (check-equal? (>> "") "")
-    (check-equal? (>> "     ") "")
-    (check-equal? (>> "}") "}")
-    (check-equal? (>> "{") "{")
+    (test-equal? "(>> empty string)->empty string" (>> "") "")
+    (test-equal? "(>> spaces)->empty string" (>> "     ") "")
+    (test-equal? "(>> {)->{" (>> "}") "}")
+    (test-equal? "(>> })->}" (>> "{") "{")
     (test-false "a is invalid" (>> "a"))
     (test-false "   _{ is invalid" (>> "   _{"))
-    (check-equal? (>> "1 ") "1")
-    (check-equal? (>> " 1 ") "1")
-    (check-equal? (>> "* 1 ") "*")
-    (check-equal? (>> "     * 1 ") "*") 
-    (check-equal? (>> "22*1 ") "22")
-    (check-equal? (>> "{12*} ") "{")
-    (check-equal? (>> "{{12*} ") "{")
-    (check-equal? (>> " { {12*} ") "{")
+    (test-equal? "(>> 1)->1" (>> "1 ") "1")
+    (test-equal? "(>>  1 )->1" (>> " 1 ") "1")
+    (test-equal? "(>> * 1 )->*" (>> "* 1 ") "*")
+    (test-equal? "(>>     * 1 )->*" (>> "     * 1 ") "*") 
+    (test-equal? "(>> 22*1)->22" (>> "22*1 ") "22")
+    (test-equal? "(>> {12*})->{" (>> "{12*} ") "{")
+    (test-equal? "(>> {{12*})->{" (>> "{{12*} ") "{")
+    (test-equal? "(>> { {12*} )->{" (>> " { {12*} ") "{")
   )
 
 
@@ -73,7 +73,8 @@
 
  ; todo: add more, would be better not to depend on other functions
   (test-suite "tree->string"
-     (check-equal? (tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
+     (test-equal? "->{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"
+                  (tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
                    "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
   )
 )
