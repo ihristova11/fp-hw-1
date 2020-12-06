@@ -123,36 +123,6 @@
 (define (height tree)
   (if (null? tree) 0 (+ 1 (max (height (right-tree tree)) (height (left-tree tree))))))
 
-(define (create-sizes-tree tree)
-  (define (get-visual-height tree)
-    (if (empty-tree? tree) 0
-        (caar tree))
-  )
-
-  (define (get-visual-width tree)
-    (if (empty-tree? tree) 0
-        (cdar tree))
-  )
-  
-  (cond
-    ((empty-tree? tree) empty-tree)
-    (else
-     (let*
-         ((left (create-sizes-tree (left-tree tree)))
-          (right (create-sizes-tree (right-tree tree)))
-          (root-length (number-length (root tree)))
-          (height-l (get-visual-height left))
-          (height-r (get-visual-height right))
-          (width-l (get-visual-width left))
-          (width-r (get-visual-width right))
-          (new-root (cons (+ height-r height-l 1) (+ 1 width-l width-r root-length))))
-       (list new-root left right)))))
-
-;(create-sizes-tree (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
-(create-sizes-tree (string->tree "{10 {15 {2 * *} {7 * *}} {5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}}"))
-
-;(width (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
-
 (define (balanced? tree)
     (cond ((null? tree) #t)
           ((and (<= (abs (- (height (right-tree tree)) (height (left-tree tree)))) 1)
