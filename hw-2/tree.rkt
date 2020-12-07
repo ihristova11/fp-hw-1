@@ -29,7 +29,7 @@
   (define (loop str res)
     (let ((first (head str)))
     (cond ((string=? "" str) res)
-          ((not (or (valid-symbol? first) (termination? first))) #f) ; invalid symbol 'a' for example -> return false
+          ((not (or (valid-symbol? first) (termination? first))) #f) ; invalid symbol -> return false
           ((and (not (string=? "" res)) (not (type-equal? first res))) res) ; diff types
           ((and (type-equal? first res) (natural? first)) (loop (tail str 1) (string-append res first))) ; return result if string is termination or the head and the res are different types
           ((and (not (= 4 (type first))) (string=? res "")) (loop (tail str 1) (string-append res first)))
@@ -40,15 +40,15 @@
 )
 
 (define (read-token-len str)
-  (define (termination? ch) (or (string=? ch "") (string=? ch " ") (string=? "{" ch) (string=? "}" ch))) ; strings to terminate the read operation
+  (define (termination? ch) (or (string=? ch "") (string=? ch " ") (string=? "{" ch) (string=? "}" ch)))
 
   (define (loop str res len)
     (let ((first (head str)))
     (cond ((string=? "" str) len)
-          ((not (or (valid-symbol? first) (termination? first))) #f) ; invalid symbol 'a' for example -> return false
-          ((and (not (string=? "" res)) (not (type-equal? first res))) len) ; diff types
+          ((not (or (valid-symbol? first) (termination? first))) #f)
+          ((and (not (string=? "" res)) (not (type-equal? first res))) len)
           ((and (type-equal? first res) (not (string=? "" res)) (not (natural? res))) len)
-          ((and (type-equal? first res) (natural? first)) (loop (tail str 1) (string-append res first) (+ 1 len))) ; return result if string is termination or the head and the res are different types
+          ((and (type-equal? first res) (natural? first)) (loop (tail str 1) (string-append res first) (+ 1 len)))
           ((and (not (= 4 (type first))) (string=? res "")) (loop (tail str 1) (string-append res first) (+ 1 len)))
           (else (loop (tail str 1) res (+ 1 len)))
     ))
@@ -113,7 +113,8 @@
   (if (null? tree) 0 (+ 1 (max (height (right-tree tree)) (height (left-tree tree))))))
 
 (define (balanced? tree)
-    (cond ((null? tree) #t)
+    (cond ((and (not (list? tree)) (not tree)) #f)
+          ((null? tree) #t)
           ((and (<= (abs (- (height (right-tree tree)) (height (left-tree tree)))) 1)
                 (balanced? (right-tree tree))
                 (balanced? (left-tree tree))) #t)
