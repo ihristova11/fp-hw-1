@@ -17,7 +17,7 @@
     (test-equal? "(read-token     * 1 )->*" (read-token "     * 1 ") "*") 
     (test-equal? "(read-token 22*1)->22" (read-token "22*1 ") "22")
     (test-equal? "(read-token {12*})->{" (read-token "{12*} ") "{")
-    (test-equal? "(read-token {{12*})->{" (read-token "{{12*} ") "{")
+    (test-equal? "(read-token {{12*})->{" (read-token "{{12*} ") "{") 
     (test-equal? "(read-token { {12*} )->{" (read-token " { {12*} ") "{")
   )
 
@@ -47,15 +47,30 @@
                (tree? "{5 * *}"))
   )
 
-
- ; todo: write more, should we check if the tree is valid or not
   (test-suite "balanced?"
     (test-false "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}} is not balanced"
                 (balanced? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
+    
     (test-true "'() is balanced"
                (balanced? '()))
-    (test-false "{111 {2 {2 {2 {2 * *} *} *} {6 * *}} *} is balanced"
+    
+    (test-false "{111 {2 {2 {2 {2 * *} *} *} {6 * *}} *} is not balanced"
                 (balanced? (string->tree "{111 {2 {2 {2 {2 * *} *} *} {6 * *}} *}")))
+    
+    (test-false "{8 {4 {3 **} {2 * {1 * *}}} {5 **}} is not balanced"
+                (balanced? (string->tree "{8 {4 {3 **} {2 * {1 * *}}} {5 **}}")))
+    
+    (test-true "{3**} is balanced"
+                (balanced? (string->tree "{3**}")))
+
+    (test-true "{3 {1 **} *} is balanced"
+               (balanced? (string->tree "{3 {1 **} *}")))
+    
+    (test-false "{111 {2 {2 {2 {2 * *} *} *} {6 {3 {4 * *} *} *}} *} is not balanced"
+                (balanced? (string->tree "{111 {2 {2 {2 {2 * *} *} *} {6 {3 {4 * *} *} *}} *}")))
+
+    (test-false "{111 {2 {2 {2 {2 * *} *} *} {6 {3 {4 {1 {1 * *} *} *} *}} *} is invalid"
+                (balanced? (string->tree "{111 {2 {2 {2 {2 * *} *} *} {6 {3 {4 {1 {1 * *} *} *} *}} *}")))
   )
 
 
@@ -63,15 +78,17 @@
   (test-suite "ordered?"
      (test-true "{8 {3 {1 * *} {6 {4 * *} {7 * *}}} {10 * {14 {13 * *} *}}} is ordered"
                 (ordered? (string->tree "{8 {3 {1 * *} {6 {4 * *} {7 * *}}} {10 * {14 {13 * *} *}}}")))
+     
      (test-true "{3 * *} is ordered"
                 (ordered? (string->tree "{3 * *}")))
+     
      (test-true "'() is ordered"
                 (ordered? '()))
+     
      (test-false "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}} is not ordered"
                  (ordered? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
   )
 
- ; todo: add more, would be better not to depend on other functions
   (test-suite "tree->string"
      (test-equal? "->{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"
                   (tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
