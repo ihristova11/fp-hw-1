@@ -4,21 +4,21 @@
 (include "tree.rkt")
 
 (test/gui
-  (test-suite ">>"
-    (test-equal? "(>> empty string)->empty string" (>> "") "")
-    (test-equal? "(>> spaces)->empty string" (>> "     ") "")
-    (test-equal? "(>> {)->{" (>> "}") "}")
-    (test-equal? "(>> })->}" (>> "{") "{")
-    (test-false "a is invalid" (>> "a"))
-    (test-false "   _{ is invalid" (>> "   _{"))
-    (test-equal? "(>> 1)->1" (>> "1 ") "1")
-    (test-equal? "(>>  1 )->1" (>> " 1 ") "1")
-    (test-equal? "(>> * 1 )->*" (>> "* 1 ") "*")
-    (test-equal? "(>>     * 1 )->*" (>> "     * 1 ") "*") 
-    (test-equal? "(>> 22*1)->22" (>> "22*1 ") "22")
-    (test-equal? "(>> {12*})->{" (>> "{12*} ") "{")
-    (test-equal? "(>> {{12*})->{" (>> "{{12*} ") "{")
-    (test-equal? "(>> { {12*} )->{" (>> " { {12*} ") "{")
+  (test-suite "read-token"
+    (test-equal? "(read-token empty string)->empty string" (read-token "") "")
+    (test-equal? "(read-token spaces)->empty string" (read-token "     ") "")
+    (test-equal? "(read-token {)->{" (read-token "}") "}")
+    (test-equal? "(read-token })->}" (read-token "{") "{")
+    (test-false "a is invalid" (read-token "a"))
+    (test-false "   _{ is invalid" (read-token "   _{"))
+    (test-equal? "(read-token 1)->1" (read-token "1 ") "1")
+    (test-equal? "(read-token  1 )->1" (read-token " 1 ") "1")
+    (test-equal? "(read-token * 1 )->*" (read-token "* 1 ") "*")
+    (test-equal? "(read-token     * 1 )->*" (read-token "     * 1 ") "*") 
+    (test-equal? "(read-token 22*1)->22" (read-token "22*1 ") "22")
+    (test-equal? "(read-token {12*})->{" (read-token "{12*} ") "{")
+    (test-equal? "(read-token {{12*})->{" (read-token "{{12*} ") "{")
+    (test-equal? "(read-token { {12*} )->{" (read-token " { {12*} ") "{")
   )
 
 
