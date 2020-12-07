@@ -84,6 +84,19 @@
      
      (test-true "'() is ordered"
                 (ordered? '()))
+
+     (test-true "{50 {17 {12 {9 * *} {14 * *}} {23 {19 * *} *}} {72 {54 * {67 * *}} {76 * *}}} is ordered"
+                (ordered? (string->tree "{50 {17 {12 {9 * *} {14 * *}} {23 {19 * *} *}} {72 {54 * {67 * *}} {76 * *}}}")))
+
+     (test-false "{12 {13 * *} {14 * *}} is not ordered"
+                 (ordered? (string->tree "{12 {13 * *} {14 * *}}")))
+
+     (test-false "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}} is not ordered"
+                 (ordered? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
+
+     (test-false "{5 {5 * *} {5 * *}} is not ordered" (ordered? (string->tree "{5 {5 * *} {5 * *}}")))
+
+     (test-false "{5} is invalid" (ordered? (string->tree "{5}")))
   )
 
   (test-suite "tree->string"
