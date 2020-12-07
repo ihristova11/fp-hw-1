@@ -84,9 +84,6 @@
      
      (test-true "'() is ordered"
                 (ordered? '()))
-     
-     (test-false "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}} is not ordered"
-                 (ordered? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")))
   )
 
   (test-suite "tree->string"
