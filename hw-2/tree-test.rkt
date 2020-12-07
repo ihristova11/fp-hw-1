@@ -93,13 +93,32 @@
      (test-equal? "->{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"
                   (tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
                    "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}")
+     
      (test-equal? "empty tree->*"
                   (tree->string '()) "*")
+     
      (test-equal? "{3 * *}" (tree->string (string->tree "{3**}")) "{3 * *}")
-  )
 
+     (test-equal? "{3 {1 {199      * {50 **}} {2 **}} *}"
+                  (tree->string (string->tree "{3 {1 {199      * {50 **}} {2 **}} *}")) "{3 {1 {199 * {50 * *}} {2 * *}} *}")
+  )
+  
   (test-suite "tree->stream"
-     (test-equal? "" #t #t)
+     (test-equal? "'() inorder check" (stream->list (tree->stream '() 'inorder)) '())
+     (test-equal? "'() preorder check" (stream->list (tree->stream '() 'preorder)) '())
+     (test-equal? "'() postorder check" (stream->list (tree->stream '() 'postorder)) '())
+
+     
+     (test-equal? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}} inorder check"
+                  (stream->list (tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'inorder))
+                  (list 2 22 6 5 1 111 3))
+       
+     (test-equal? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}} preorder check"
+                    (stream->list (tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'preorder))
+                    (list 5 22 2 6 1 3 111))
+
+     (test-equal? "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}} postorder check"
+                    (stream->list (tree->stream (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}") 'postorder))
+                    (list 2 6 22 111 3 1 5))       
   )
 )
-
