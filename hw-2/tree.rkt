@@ -1,5 +1,3 @@
-;#lang racket/base
-
 (require racket/stream)
 
 (define (natural? n) (and (integer? (string->number n)) (<= 0 (string->number n)))) ; considering 0 a natural number
@@ -172,5 +170,3 @@
         ((eq? order 'preorder) (preorder tree))
   )
 )
-
-;(ordered? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
