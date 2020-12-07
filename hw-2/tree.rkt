@@ -23,7 +23,7 @@
 (define (tail str ind) (if (= 0 (string-length str)) str (substring str ind (string-length str))))
 
 
-(define (>> str)
+(define (read-token str)
   (define (termination? ch) (or (string=? ch "") (string=? ch " ") (string=? "{" ch) (string=? "}" ch))) ; strings to terminate the read operation
 
   (define (loop str res)
@@ -39,7 +39,7 @@
   (loop str "")
 )
 
-(define (>>len str)
+(define (read-token-len str)
   (define (termination? ch) (or (string=? ch "") (string=? ch " ") (string=? "{" ch) (string=? "}" ch))) ; strings to terminate the read operation
 
   (define (loop str res len)
@@ -63,12 +63,12 @@
    (define (update-stack s) 
     (cons "*" (cdr (cdr (cdr (cdr s)))))
   )
-   (let ((el (>> str)))
-   (cond ((not (>> str)) #f)
+   (let ((el (read-token str)))
+   (cond ((not (read-token str)) #f)
          ((string=? "" str) stack)
          ((and (> (length stack) 0) (= 1 (type el)) (string=? "{" (car stack))) #f)
-         ((not (or (= 4 (type el)) (= 3 (type el)))) (loop (tail str (>>len str)) (cons el stack))) ; push to stack
-         ((and (>= (length stack) 4) (= 3 (type el))) (loop (tail str (>>len str)) (update-stack stack))) ; pop the last 4, push *
+         ((not (or (= 4 (type el)) (= 3 (type el)))) (loop (tail str (read-token-len str)) (cons el stack))) ; push to stack
+         ((and (>= (length stack) 4) (= 3 (type el))) (loop (tail str (read-token-len str)) (update-stack stack))) ; pop the last 4, push *
          ((and (< (length stack) 4) (= 3 (type el))) #f)
    )
      )
@@ -90,12 +90,12 @@
     (cons (construct-list 3 s '()) (cdr (cdr (cdr (cdr s)))))
   )
   
-   (let ((el (>> str))) ; todo: refactor, replication of code
-   (cond ((not (>> str)) #f)
+   (let ((el (read-token str)))
+   (cond ((not (read-token str)) #f)
          ((string=? "" str) stack)
          ((and (> (length stack) 0) (= 1 (type el)) (and (not (list? (car stack))) (string=? "{" (car stack)))) #f)
-         ((not (or (= 4 (type el)) (= 3 (type el)))) (loop (tail str (>>len str)) (cons el stack))) ; push to stack
-         ((and (>= (length stack) 4) (= 3 (type el))) (loop (tail str (>>len str)) (update-stack stack))) ; pop the last 4, push *
+         ((not (or (= 4 (type el)) (= 3 (type el)))) (loop (tail str (read-token-len str)) (cons el stack)))
+         ((and (>= (length stack) 4) (= 3 (type el))) (loop (tail str (read-token-len str)) (update-stack stack)))
          ((and (< (length stack) 4) (= 3 (type el))) #f)
    )
      )
@@ -116,7 +116,7 @@
     (cond ((null? tree) #t)
           ((and (<= (abs (- (height (right-tree tree)) (height (left-tree tree)))) 1)
                 (balanced? (right-tree tree))
-                (balanced? (left-tree tree))) #t) ; -1? exists
+                (balanced? (left-tree tree))) #t)
           (else #f)))
 
 (define (ordered? tree)
@@ -139,9 +139,6 @@
   )
   (helper tree "")
 )
-
-;(tree->string (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
-
 
 (define (tree->stream tree order)
 (define (inorder tree)
