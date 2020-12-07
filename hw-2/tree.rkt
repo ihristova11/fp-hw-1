@@ -1,3 +1,5 @@
+;#lang racket/base
+
 (require racket/stream)
 
 (define (natural? n) (and (integer? (string->number n)) (<= 0 (string->number n)))) ; considering 0 a natural number
@@ -122,9 +124,11 @@
 
 (define (ordered? tree)
   (define (helper tree minValue maxValue)
-    (cond ((and (not (null? tree)) (or (< (root tree) minValue) (>= (root tree) maxValue))) #f)
-          ((and (not (null? tree)) (not (ordered? (left-tree tree)))) #f)
-          ((and (not (null? tree)) (not (ordered? (right-tree tree)))) #f)
+    (cond ((and (not (list? tree)) (not tree)) #f)
+          ((null? tree) #t)
+          ((or (< (root tree) minValue) (>= (root tree) maxValue)) #f)
+          ((not (helper (left-tree tree) minValue (root tree))) #f)
+          ((not (helper (right-tree tree) (root tree) maxValue)) #f)
           (else #t)
     )
   )
@@ -168,3 +172,5 @@
         ((eq? order 'preorder) (preorder tree))
   )
 )
+
+;(ordered? (string->tree "{5 {22 {2 * *} {6 * *}} {1 * {3 {111 * *} *}}}"))
