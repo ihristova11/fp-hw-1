@@ -78,3 +78,12 @@ example-bst
 )
 
 (member-tree? 4 example-bst)
+
+(define (sum-tree t) ; assuming the tree is valid
+  (if (empty-tree? t)
+      0
+      (+ (root-tree t) (sum-tree (left-tree t)) (sum-tree (right-tree t)))
+  )
+)
+
+(sum-tree (list 1 '() '()))
