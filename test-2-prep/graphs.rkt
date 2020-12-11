@@ -21,4 +21,9 @@
 
 (out-degree g 2)
 
+(define (flatten L)
+  (cond ((null? L) '())
+        ((pair? (car L)) (append (flatten (car L)) (flatten (cdr L))))
+        (else (cons (car L) (flatten (cdr L))))))
+
 ; искаме списък с всички върхове на g
