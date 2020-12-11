@@ -101,3 +101,15 @@ example-bst
 )
 
 (tree-level 1 example-bst)
+
+; искаме да приложим функцията f върху всички елементи на дървото (като истинската map, ама за дървета)
+(define (map-tree f t)
+  (if (empty-tree? t)
+      empty-tree
+      (make-tree (f (root-tree t))
+                 (map-tree f (left-tree t))
+                 (map-tree f (right-tree t)))
+  )
+)
+
+(map-tree (lambda (x) (+ 1 x)) example-bst)
