@@ -113,3 +113,68 @@ example-bst
 )
 
 (map-tree (lambda (x) (+ 1 x)) example-bst)
+
+; искаме да върнем списък от елементите на дървото - ляво, корен, дясно
+(define (inorder-tree t)
+  (cond ((empty-tree? t) empty-tree)
+        ((not (tree? t)) (list t))
+        (else (append
+               (inorder-tree (left-tree t))
+               (inorder-tree (root-tree t))
+               (inorder-tree (right-tree t))))
+  )
+)
+
+(define (tree->list tree)
+  (cond ((null? tree) '())
+        (else (append (tree->list (left-tree tree))
+                      (list (root-tree tree))
+                      (tree->list (right-tree tree)))))
+)
+
+(tree->list example-bst)
+(inorder-tree example-bst)
+
+; искаме да проверим дали х се среща в двоичното наредено дърво tree
+; тук правим итеративен процес (опашкова рекурсия)
+(define (member-bst? x t)
+    (cond ((empty-tree? t) #f)
+        ((equal? x (root-tree t)) #t)
+        ((< x (root-tree t)) (member-bst? x (left-tree t)))
+        ((> x (root-tree t)) (member-bst? x (right-tree t)))
+  )
+)
+
+(member-bst? 64 example-bst)
+
+(define (leaf? t)
+  (and (= (length t) 3)
+       (list? t)
+       (empty-tree? (left-tree t))
+       (empty-tree? (right-tree t)))
+)
+
+; искаме да вкараме елемент в двоично наредено дърво (binary search tree - BST)
+(define (insert-bst x t)
+  (cond ((empty-tree? t) (make-leaf x))
+        ((< x (root-tree t)) (insert-bst x (left-tree t)))
+        (else (insert-bst x (right-tree t)))
+  )
+)
+
+(insert-bst 21 example-bst)
+
+(define (bst-insert x tree)
+  (cond ((empty-tree? tree) (make-leaf x))
+	((> x (root-tree tree)) (bst-insert x (right-tree tree)))
+	(else (bst-insert x (left-tree tree))))
+)
+
+(bst-insert 21 (list 15 '() '()))
+
+(define example-list '(1 5 4 6 2 8 7))
+
+; искаме да сортираме даден списък, използвайки tree->list и bst-insert
+(define (sort xs)
+  (tree->list (foldr bst-insert empty-tree xs))
+)
