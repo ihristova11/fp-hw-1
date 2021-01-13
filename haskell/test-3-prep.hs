@@ -37,3 +37,24 @@ zip' :: [a] -> [b] -> [(a,b)]
 zip' _ [] = []
 zip' [x] [y] = [(x,y)]
 zip' (x:xs) (y:ys) = (x,y): zip' xs ys
+
+-- elem
+elem' :: (Eq a) => a -> [a] -> Bool 
+elem' _ [] = False 
+elem' y (x:xs) = x == y || elem' y xs
+
+sum' :: (Num i) => [i] -> i
+sum' = foldl (+) 0
+
+elem'' :: (Eq a) => a -> [a] -> Bool 
+elem'' el xs = foldl (\acc x -> acc || x == el) False xs
+
+
+
+--  https://github.com/semerdzhiev/fp-2020-21/blob/master/group-g/ex11-20210105-tasks.md
+
+minimum' :: (Num a, Ord a) => [a] -> a
+minimum' (x:xs) = foldl (\acc x -> if acc > x then x else acc) x xs
+
+rev :: [a] -> [a]
+rev = foldl (flip (:)) []
