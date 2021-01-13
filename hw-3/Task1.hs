@@ -21,10 +21,9 @@ postorder EmptyTree = []
 postorder (Node val l r) = postorder l ++ postorder r ++ [val]
 
 values :: Strategy -> (Tree a) -> [a]
-values s t 
-    | s == Inorder = inorder t
-    | s == Postorder = postorder t
-    | s == Preorder = preorder t
+values Inorder t = inorder t
+values Preorder t = preorder t
+values Postorder t = postorder t
 
 testTree = Node 5
                 (Node 12
