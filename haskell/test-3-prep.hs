@@ -58,3 +58,13 @@ minimum' (x:xs) = foldl (\acc x -> if acc > x then x else acc) x xs
 
 rev :: [a] -> [a]
 rev = foldl (flip (:)) []
+
+len :: [a] -> Int 
+len = foldl (\acc x -> acc + 1) 0
+
+countDivisors :: Int -> Int 
+countDivisors n = length [x | x <- [2..n-1], mod n x == 0]
+
+prime n = countDivisors n == 0
+
+primes = filter prime [2..]
