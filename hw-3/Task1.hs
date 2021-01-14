@@ -24,12 +24,3 @@ values :: Strategy -> (Tree a) -> [a]
 values Inorder t = inorder t
 values Preorder t = preorder t
 values Postorder t = postorder t
-
-testTree = Node 5
-                (Node 12
-                      EmptyTree
-                      (Node 9 EmptyTree EmptyTree))
-                (Node (-6)
-                      (Node 20 EmptyTree EmptyTree)
-                      (Node 2 EmptyTree EmptyTree))
-
