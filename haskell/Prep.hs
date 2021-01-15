@@ -121,6 +121,7 @@ lst = [(1.0,1.0), (2,2), (3, 3), (4,4)] -- find length
 generatePairs xs = (init $ pairs xs []) ++ [[last xs] ++ [head xs]]
         where pairs lst res = if not $ null lst then take 2 lst : pairs (tail lst) res else res
 
--- dist xs = sum (allDist (generatePairs xs))
-allDist = map (\el -> sqrt ((fst $ head el) - (fst $ head $ tail el))^2 + ((snd $ head el) - (snd $ head $ tail el))^2)
+dist xs = sum (allDist (generatePairs xs))
+    where allDist :: [[(Double, Double )]] -> [Double]
+          allDist = map (\el -> sqrt (((fst $ head el) - (fst $ head $ tail el))^2 + ((snd $ head el) - (snd $ head $ tail el))^2))
 
