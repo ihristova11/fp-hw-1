@@ -55,3 +55,6 @@
 --     | otherwise = map head matrix : transpose (map tail matrix)
 
 -- -- permutations - функция, която ни дава всички пермутации на даден списък
+
+-- Да се генерира поток sumsOfCubes от тези числа, които са сума от кубовете на две положителни цели числа
+sumOfCubes = [x^3 + y^3 | x <- [1..], y <- [1..]]
