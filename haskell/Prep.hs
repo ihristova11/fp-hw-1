@@ -91,9 +91,11 @@ sumLast initial n = initial : generate [initial]
 -- Координатите са целочислени. Да се състави функция, която:
 -- а) проверява дали редицата от точки е строго монотонно растяща относно абсцисите на точките;
 -- б) изтрива точките, които нарушават строгата монотонност относно абсцисите на точките;
--- в) намира и извежда лицето на фигурата, ограничена от начупената линия, определена от точките, останали след изтриването от б), и абсцисната ос.
+-- в) намира и извежда лицето на фигурата, ограничена от начупената линия, определена от точките, 
+-- останали след изтриването от б), и абсцисната ос.
 
 sample = [(1,2), (3,2), (7,4)]
+invalid_sample = [(10,2), (3,2), (7,4)]
 
 -- a
 increasing xs = length (filter (==True) (map (> head (map (fst) xs)) (map (fst) xs))) == length xs - 1
@@ -104,3 +106,21 @@ increasing xs = length (filter (==True) (map (> head (map (fst) xs)) (map (fst) 
 -- generate xs = map (fst)
 
 -- t xs = length (filter (==True) (map (> head xs) xs)) == length xs - 1
+
+-- b
+removeBadPoints xs = let min = fst (head xs)
+                     in head xs : filter (\x -> fst x > min) xs
+
+-- v?
+
+---------
+
+
+lst = [(1.0,1.0), (2,2), (3, 3), (4,4)] -- find length
+
+generatePairs xs = (init $ pairs xs []) ++ [[last xs] ++ [head xs]]
+        where pairs lst res = if not $ null lst then take 2 lst : pairs (tail lst) res else res
+
+-- dist xs = sum (allDist (generatePairs xs))
+allDist = map (\el -> sqrt ((fst $ head el) - (fst $ head $ tail el))^2 + ((snd $ head el) - (snd $ head $ tail el))^2)
+
