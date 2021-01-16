@@ -125,3 +125,11 @@ dist xs = sum (allDist (generatePairs xs))
     where allDist :: [[(Double, Double )]] -> [Double]
           allDist = map (\el -> sqrt (((fst $ head el) - (fst $ head $ tail el))^2 + ((snd $ head el) - (snd $ head $ tail el))^2))
 
+matrix1 :: [[Int]]
+matrix1 = [[1, 0, -1], [2, 0, -2], [1, 0, -1]]
+
+matrix2 :: [[Int]]
+matrix2 = [[1, 2, 1], [0, 0, 0], [-1, -2, -1]]
+
+at2D :: [[a]] -> Int -> Int -> a
+at2D matrix x y = matrix !! x !! y
