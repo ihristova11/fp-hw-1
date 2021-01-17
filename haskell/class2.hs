@@ -28,3 +28,5 @@ data Tree a = EmptyTree | Node
                             left :: Tree a, 
                             right :: Tree a} 
                             deriving (Show, Read)
+
+var = Node 10 EmptyTree EmptyTree

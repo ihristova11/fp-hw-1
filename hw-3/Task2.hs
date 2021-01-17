@@ -16,3 +16,4 @@ grayscaleF (Rgb r g b) = Rgb val val val
 
 grayscale :: Image -> Image
 grayscale (Image w h c) = Image w h (map (map grayscaleF) c)
+
